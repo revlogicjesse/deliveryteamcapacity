@@ -1765,9 +1765,9 @@
             <select class="filter-select" id="filter-status" onchange="filterAccounts()">
               <option value="">All statuses</option>
               <option>Active</option>
-              <option>At risk</option>
-              <option>Churned</option>
+              <option>Inactive</option>
               <option>Prospect</option>
+              <option>Complete</option>
             </select>
             <select class="filter-select" id="filter-am" onchange="filterAccounts()">
               <option value="">All AMs</option>
@@ -1971,7 +1971,7 @@
               <div class="detail-field">
                 <div class="detail-label">Status</div>
                 <select class="detail-select" id="d-status" data-field="status" onchange="saveDetailField(this)">
-                  <option>Active</option><option>Prospect</option><option>At risk</option><option>Churned</option>
+                  <option>Active</option><option>Inactive</option><option>Prospect</option><option>Complete</option>
                 </select>
               </div>
               <div class="detail-field">
@@ -2303,9 +2303,9 @@
           <label class="form-label">Status</label>
           <select class="form-select" id="a-status">
             <option>Active</option>
+            <option>Inactive</option>
             <option>Prospect</option>
-            <option>At risk</option>
-            <option>Churned</option>
+            <option>Complete</option>
           </select>
         </div>
         <div class="form-field">
@@ -2553,15 +2553,21 @@ async function loadWhitespace() {
 function updateStats() {
   const activeAccounts = allAccounts.filter(a => a.status === 'Active').length;
 
+  // Accounts included in TAO: Active and Inactive only (not Prospect or Complete)
+  const taoAccountIds = new Set(
+    allAccounts.filter(a => a.status === 'Active' || a.status === 'Inactive').map(a => a.id)
+  );
+
   // TAO: whitespace rows where status is Potential, Active pipeline, or Unknown
+  // and account is Active or Inactive
   const taoStatuses = ['Potential','Active pipeline','Unknown'];
   const tao = allWhitespace
-    .filter(w => taoStatuses.includes(w.status))
+    .filter(w => taoStatuses.includes(w.status) && taoAccountIds.has(w.account_id))
     .reduce((sum, w) => sum + (parseFloat(w.override_price) || parseFloat(w.list_price) || 0), 0);
 
-  // Active Pipeline: whitespace rows where status is Active pipeline only
+  // Active Pipeline: same account filter, status = Active pipeline only
   const pipeline = allWhitespace
-    .filter(w => w.status === 'Active pipeline')
+    .filter(w => w.status === 'Active pipeline' && taoAccountIds.has(w.account_id))
     .reduce((sum, w) => sum + (parseFloat(w.override_price) || parseFloat(w.list_price) || 0), 0);
 
   // Capacity: sum slots used vs total available across Engagement Leads, Support AMs, Pod Leaders
@@ -2800,11 +2806,12 @@ function renderAccounts(accounts) {
     const tcv = a.total_contract_value ? formatCurrency(a.total_contract_value) : '–';
     const arr = a.arr ? formatCurrency(a.arr) : '–';
 
-    // Calculate TAO from allWhitespace for this account
-    const taoVal = allWhitespace
+    // TAO only shown for Active and Inactive accounts
+    const taoExcluded = a.status === 'Complete' || a.status === 'Prospect';
+    const taoVal = taoExcluded ? 0 : allWhitespace
       .filter(w => w.account_id === a.id && taoStatuses.includes(w.status))
       .reduce((sum, w) => sum + (parseFloat(w.override_price) || parseFloat(w.list_price) || 0), 0);
-    const tao = taoVal > 0 ? formatCurrency(taoVal) : '–';
+    const tao = taoExcluded ? '–' : (taoVal > 0 ? formatCurrency(taoVal) : '–');
 
     return `<tr style="cursor:pointer" onclick="openAccountDetail('${a.id}')">
       <td><strong>${a.account_name}</strong></td>
