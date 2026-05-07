@@ -1831,7 +1831,7 @@
               <option>Scoping</option>
               <option>Build</option>
               <option>Active delivery</option>
-              <option>Maintenance / embedding</option>
+              <option>Maintenance</option>
               <option>Wind-down</option>
               <option>On Hold / Cancelled</option>
               <option>Complete</option>
@@ -2135,7 +2135,7 @@
             <option>Scoping</option>
             <option>Build</option>
             <option>Active delivery</option>
-            <option>Maintenance / embedding</option>
+            <option>Maintenance</option>
             <option>Wind-down</option>
             <option>On Hold / Cancelled</option>
             <option>Complete</option>
@@ -2595,10 +2595,10 @@ function updateStats() {
 
 const SCOPE_WEIGHTS = { 'Heavy 1.5': 1.5, 'Standard 1.0': 1.0, 'Light 0.5': 0.5 };
 const PHASE_MODIFIERS = {
-  'Scoping': 0.5,
+  'Scoping': 1.0,
   'Build': 1.0,
-  'Active delivery': 1.0,
-  'Maintenance / embedding': 0.5,
+  'Active delivery': 2.0,
+  'Maintenance': 0.5,
   'Wind-down': 0.25,
   'On Hold / Cancelled': 0,
   'Complete': 0,
@@ -2606,19 +2606,11 @@ const PHASE_MODIFIERS = {
 
 function calcSlotsForPerson(personName) {
   let total = 0;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
   allEngagements.forEach(e => {
-    // Skip engagements with no start date or a future start date
-    if (!e.start_date) return;
-    const startDate = new Date(e.start_date);
-    startDate.setHours(0, 0, 0, 0);
-    if (startDate > today) return;
-
     const phase = e.phase || '';
     const phaseMod = PHASE_MODIFIERS[phase] ?? 0;
-    if (phaseMod === 0) return; // On Hold / Cancelled / Complete — no load
+    if (phaseMod === 0) return; // On Hold / Cancelled — no load
 
     const isLead = e.lead_am === personName;
     const isSupport = e.support_am === personName;
@@ -2666,13 +2658,7 @@ function renderCapacity() {
     const safeId = person.full_name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
 
     // Build breakdown rows
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     const personEngagements = allEngagements.filter(e => {
-      if (!e.start_date) return false;
-      const startDate = new Date(e.start_date);
-      startDate.setHours(0, 0, 0, 0);
-      if (startDate > today) return false;
       const phaseMod = PHASE_MODIFIERS[e.phase || ''] ?? 0;
       return phaseMod !== 0 && (e.lead_am === person.full_name || e.support_am === person.full_name);
     });
@@ -3694,7 +3680,7 @@ const REV_PROGRAMS = [
   { name: 'Partner Pipeline', listPrice: null }
 ];
 
-const ENGAGEMENT_PHASES = ['Scoping','Build','Active delivery','Maintenance / embedding','Wind-down','On Hold / Cancelled','Complete'];
+const ENGAGEMENT_PHASES = ['Scoping','Build','Active delivery','Maintenance','Wind-down','On Hold / Cancelled','Complete'];
 const ENGAGEMENT_SCOPES = ['Heavy 1.5','Standard 1.0','Light 0.5'];
 const WS_STATUSES = ['Purchased','Active pipeline','Potential','Not needed','Unknown'];
 
