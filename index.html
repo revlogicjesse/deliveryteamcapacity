@@ -3565,6 +3565,8 @@ function populateAMFilters() {
 function navTo(page, el) {
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-account-detail').classList.remove('active');
+  currentDetailAccountId = null;
   el.classList.add('active');
   document.getElementById('page-' + page).classList.add('active');
 
