@@ -671,13 +671,6 @@
   .phase-hold { background: #FEE2E2; color: #991B1B; }
   .phase-complete { background: #E0F2FE; color: #075985; }
 
-  .eng-highlighted {
-    background: #E8F7F0 !important;
-    outline: 2px solid var(--green);
-    border-radius: var(--radius);
-    transition: background 0.3s, outline 0.3s;
-  }
-
   /* ── EMPTY / LOADING ── */
   .loading-state, .empty-state {
     text-align: center;
@@ -1838,7 +1831,7 @@
               <option>Scoping</option>
               <option>Build</option>
               <option>Active delivery</option>
-              <option>Maintenance</option>
+              <option>Maintenance / embedding</option>
               <option>Wind-down</option>
               <option>On Hold / Cancelled</option>
               <option>Complete</option>
@@ -2142,7 +2135,7 @@
             <option>Scoping</option>
             <option>Build</option>
             <option>Active delivery</option>
-            <option>Maintenance</option>
+            <option>Maintenance / embedding</option>
             <option>Wind-down</option>
             <option>On Hold / Cancelled</option>
             <option>Complete</option>
@@ -2507,7 +2500,7 @@ async function loadAllData() {
     loadAssignments(),
     loadWhitespace()
   ];
-  if (canAccessPeople()) dataLoads.push(loadPeople());
+  dataLoads.push(loadPeople());
   await Promise.all(dataLoads);
   // Re-render accounts now that whitespace is loaded so TAO column is accurate
   renderAccounts(allAccounts);
@@ -2518,8 +2511,10 @@ async function loadPeople() {
   const { data, error } = await db.from('people').select('*').order('full_name');
   if (error) { showToast('Error loading people'); return; }
   allPeople = data || [];
-  renderPeople();
-  populateAMFilters();
+  if (canAccessPeople()) {
+    renderPeople();
+    populateAMFilters();
+  }
 }
 
 async function loadAccounts() {
@@ -2602,10 +2597,10 @@ function updateStats() {
 
 const SCOPE_WEIGHTS = { 'Heavy 1.5': 1.5, 'Standard 1.0': 1.0, 'Light 0.5': 0.5 };
 const PHASE_MODIFIERS = {
-  'Scoping': 1.0,
+  'Scoping': 0.5,
   'Build': 1.0,
   'Active delivery': 1.0,
-  'Maintenance': 0.5,
+  'Maintenance / embedding': 0.5,
   'Wind-down': 0.25,
   'On Hold / Cancelled': 0,
   'Complete': 0,
@@ -2707,7 +2702,7 @@ function renderCapacity() {
           formulaHtml += ` <span class="f-op">= </span><span class="f-result">${engSlots.toFixed(2)}</span>`;
         }
 
-        return `<div class="breakdown-eng-row" style="cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F0FBF5'" onmouseleave="this.style.background=''" onclick="openEngagementForm(${JSON.stringify(e).replace(/"/g,'&quot;')},null,null)">
+        return `<div class="breakdown-eng-row">
           <div>
             <div class="breakdown-eng-name">${e.rev_program || '–'}</div>
             <div class="breakdown-eng-account">${accountName}</div>
@@ -2763,7 +2758,7 @@ function renderRecentLists() {
     accountsEl.innerHTML = recentAccounts.map(a => {
       const healthColors = { Green: '#51BC88', Yellow: '#E8A838', Red: '#E05252' };
       const dot = a.health ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${healthColors[a.health] || '#D1D5DB'};margin-right:6px;vertical-align:middle"></span>` : '';
-      return `<div onclick="openAccountDetail('${a.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05);cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F9FAFB'" onmouseleave="this.style.background=''">
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05)">
         <div>
           <div style="font-size:13px;font-weight:600;color:#212A36">${a.account_name}</div>
           <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${a.lead_am || 'No AM'} · ${a.status || '–'}</div>
@@ -2786,7 +2781,7 @@ function renderRecentLists() {
   } else {
     engagementsEl.innerHTML = recentEngagements.map(e => {
       const phaseClass = phaseToClass(e.phase);
-      return `<div onclick="openAccountDetailWithEngagement('${e.account_id}','${e.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05);cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F9FAFB'" onmouseleave="this.style.background=''">
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05)">
         <div>
           <div style="font-size:13px;font-weight:600;color:#212A36">${e.accounts?.account_name || '–'}</div>
           <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${e.rev_program || '–'} · ${e.scope || '–'}</div>
@@ -2957,23 +2952,6 @@ function flashSaved() {
   el._timer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-function openAccountDetailWithEngagement(accountId, engagementId) {
-  openAccountDetail(accountId);
-  // Wait for render then scroll to and highlight the engagement row
-  setTimeout(() => {
-    const row = document.querySelector(`[data-engagement-id="${engagementId}"]`);
-    if (!row) return;
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    row.classList.add('eng-highlighted');
-    // Clear highlight on click anywhere
-    function clearHighlight() {
-      row.classList.remove('eng-highlighted');
-      document.removeEventListener('click', clearHighlight);
-    }
-    setTimeout(() => document.addEventListener('click', clearHighlight), 300);
-  }, 120);
-}
-
 function renderDetailEngagements(accountId) {
   const engs = allEngagements.filter(e => e.account_id === accountId);
   const list = document.getElementById('detail-engagements-list');
@@ -2987,7 +2965,7 @@ function renderDetailEngagements(accountId) {
   list.innerHTML = engs.map(e => {
     const phaseClass = phaseToClass(e.phase);
     const cv = e.contract_value ? formatCurrency(e.contract_value) : '';
-    return `<div class="detail-eng-row" data-engagement-id="${e.id}">
+    return `<div class="detail-eng-row">
       <div>
         <div class="detail-eng-name">${e.rev_program || '–'}</div>
         <div class="detail-eng-meta">${[e.scope, e.lead_am, cv].filter(Boolean).join(' · ')}</div>
@@ -3704,7 +3682,7 @@ const REV_PROGRAMS = [
   { name: 'Partner Pipeline', listPrice: null }
 ];
 
-const ENGAGEMENT_PHASES = ['Scoping','Build','Active delivery','Maintenance','Wind-down','On Hold / Cancelled','Complete'];
+const ENGAGEMENT_PHASES = ['Scoping','Build','Active delivery','Maintenance / embedding','Wind-down','On Hold / Cancelled','Complete'];
 const ENGAGEMENT_SCOPES = ['Heavy 1.5','Standard 1.0','Light 0.5'];
 const WS_STATUSES = ['Purchased','Active pipeline','Potential','Not needed','Unknown'];
 
