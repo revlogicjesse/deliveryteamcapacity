@@ -671,6 +671,13 @@
   .phase-hold { background: #FEE2E2; color: #991B1B; }
   .phase-complete { background: #E0F2FE; color: #075985; }
 
+  .eng-highlighted {
+    background: #E8F7F0 !important;
+    outline: 2px solid var(--green);
+    border-radius: var(--radius);
+    transition: background 0.3s, outline 0.3s;
+  }
+
   /* ── EMPTY / LOADING ── */
   .loading-state, .empty-state {
     text-align: center;
@@ -2702,7 +2709,7 @@ function renderCapacity() {
           formulaHtml += ` <span class="f-op">= </span><span class="f-result">${engSlots.toFixed(2)}</span>`;
         }
 
-        return `<div class="breakdown-eng-row">
+        return `<div class="breakdown-eng-row" style="cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F0FBF5'" onmouseleave="this.style.background=''" onclick="openEngagementForm(${JSON.stringify(e).replace(/"/g,'&quot;')},null,null)">
           <div>
             <div class="breakdown-eng-name">${e.rev_program || '–'}</div>
             <div class="breakdown-eng-account">${accountName}</div>
@@ -2758,7 +2765,7 @@ function renderRecentLists() {
     accountsEl.innerHTML = recentAccounts.map(a => {
       const healthColors = { Green: '#51BC88', Yellow: '#E8A838', Red: '#E05252' };
       const dot = a.health ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${healthColors[a.health] || '#D1D5DB'};margin-right:6px;vertical-align:middle"></span>` : '';
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05)">
+      return `<div onclick="openAccountDetail('${a.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05);cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F9FAFB'" onmouseleave="this.style.background=''">
         <div>
           <div style="font-size:13px;font-weight:600;color:#212A36">${a.account_name}</div>
           <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${a.lead_am || 'No AM'} · ${a.status || '–'}</div>
@@ -2781,7 +2788,7 @@ function renderRecentLists() {
   } else {
     engagementsEl.innerHTML = recentEngagements.map(e => {
       const phaseClass = phaseToClass(e.phase);
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05)">
+      return `<div onclick="openAccountDetailWithEngagement('${e.account_id}','${e.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05);cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F9FAFB'" onmouseleave="this.style.background=''">
         <div>
           <div style="font-size:13px;font-weight:600;color:#212A36">${e.accounts?.account_name || '–'}</div>
           <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${e.rev_program || '–'} · ${e.scope || '–'}</div>
@@ -2952,6 +2959,21 @@ function flashSaved() {
   el._timer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
+function openAccountDetailWithEngagement(accountId, engagementId) {
+  openAccountDetail(accountId);
+  setTimeout(() => {
+    const row = document.querySelector(`[data-engagement-id="${engagementId}"]`);
+    if (!row) return;
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.add('eng-highlighted');
+    function clearHighlight() {
+      row.classList.remove('eng-highlighted');
+      document.removeEventListener('click', clearHighlight);
+    }
+    setTimeout(() => document.addEventListener('click', clearHighlight), 300);
+  }, 120);
+}
+
 function renderDetailEngagements(accountId) {
   const engs = allEngagements.filter(e => e.account_id === accountId);
   const list = document.getElementById('detail-engagements-list');
@@ -2965,7 +2987,7 @@ function renderDetailEngagements(accountId) {
   list.innerHTML = engs.map(e => {
     const phaseClass = phaseToClass(e.phase);
     const cv = e.contract_value ? formatCurrency(e.contract_value) : '';
-    return `<div class="detail-eng-row">
+    return `<div class="detail-eng-row" data-engagement-id="${e.id}">
       <div>
         <div class="detail-eng-name">${e.rev_program || '–'}</div>
         <div class="detail-eng-meta">${[e.scope, e.lead_am, cv].filter(Boolean).join(' · ')}</div>
