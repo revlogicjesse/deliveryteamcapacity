@@ -2512,6 +2512,21 @@ async function loadAllData() {
   // Re-render accounts now that whitespace is loaded so TAO column is accurate
   renderAccounts(allAccounts);
   renderCapacity();
+  handleDeepLink();
+}
+
+function handleDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const accountId = params.get('account');
+  const engagementId = params.get('engagement');
+  if (!accountId) return;
+  if (engagementId) {
+    openAccountDetailWithEngagement(accountId, engagementId);
+  } else {
+    openAccountDetail(accountId);
+  }
+  // Clean the URL without triggering a reload
+  window.history.replaceState({}, '', window.location.pathname);
 }
 
 async function loadPeople() {
@@ -2972,16 +2987,22 @@ function flashSaved() {
 function openAccountDetailWithEngagement(accountId, engagementId) {
   openAccountDetail(accountId);
   setTimeout(() => {
-    const row = document.querySelector(`[data-engagement-id="${engagementId}"]`);
-    if (!row) return;
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    row.classList.add('eng-highlighted');
-    function clearHighlight() {
-      row.classList.remove('eng-highlighted');
-      document.removeEventListener('click', clearHighlight);
+    const engagement = allEngagements.find(e => e.id === engagementId);
+    if (engagement) {
+      openEngagementForm(engagement, null, null);
+    } else {
+      // Fallback: highlight row if modal can't open
+      const row = document.querySelector(`[data-engagement-id="${engagementId}"]`);
+      if (!row) return;
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.add('eng-highlighted');
+      function clearHighlight() {
+        row.classList.remove('eng-highlighted');
+        document.removeEventListener('click', clearHighlight);
+      }
+      setTimeout(() => document.addEventListener('click', clearHighlight), 300);
     }
-    setTimeout(() => document.addEventListener('click', clearHighlight), 300);
-  }, 120);
+  }, 300);
 }
 
 function renderDetailEngagements(accountId) {
