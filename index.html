@@ -1070,6 +1070,7 @@
     padding: 16px 20px;
     border-bottom: var(--border);
     flex-wrap: wrap;
+    align-items: center;
   }
 
   .filter-select {
@@ -1086,6 +1087,74 @@
   }
 
   .filter-select:focus { border-color: var(--green); }
+
+  /* ── MULTI-SELECT FILTER ── */
+  .filter-ms-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .filter-ms-trigger {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--dark);
+    border: var(--border);
+    border-radius: 6px;
+    padding: 6px 26px 6px 10px;
+    background: white;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.12s, background 0.12s;
+    white-space: nowrap;
+    position: relative;
+    min-width: 120px;
+    text-align: left;
+    line-height: 1.4;
+  }
+  .filter-ms-trigger::after {
+    content: '▾';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #9CA3AF;
+    pointer-events: none;
+  }
+  .filter-ms-trigger.active {
+    background: var(--light-green);
+    border-color: var(--green);
+    color: var(--treasury);
+    font-weight: 500;
+  }
+  .filter-ms-trigger:hover { border-color: rgba(33,42,54,0.25); }
+  .filter-ms-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 180px;
+    background: white;
+    border: 1px solid rgba(33,42,54,0.15);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(33,42,54,0.12);
+    z-index: 400;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .filter-ms-dropdown.open { display: block; }
+  .filter-ms-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .filter-ms-option:hover { background: var(--light-green); }
+  .filter-ms-option input[type=checkbox] { accent-color: var(--green); flex-shrink: 0; width: 13px; height: 13px; }
+  .filter-ms-option label { cursor: pointer; color: var(--dark); }
 
   /* ── TIMELINE VIEW ── */
   .view-toggle {
@@ -1769,22 +1838,28 @@
             </div>
           </div>
           <div class="filter-row">
-            <select class="filter-select" id="filter-status" onchange="filterAccounts()">
-              <option value="">All statuses</option>
-              <option>Active</option>
-              <option>Inactive</option>
-              <option>Prospect</option>
-              <option>Complete</option>
-            </select>
-            <select class="filter-select" id="filter-am" onchange="filterAccounts()">
-              <option value="">All AMs</option>
-            </select>
-            <select class="filter-select" id="filter-health" onchange="filterAccounts()">
-              <option value="">All health</option>
-              <option>Green</option>
-              <option>Yellow</option>
-              <option>Red</option>
-            </select>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-status-trigger" onclick="toggleFilterMS('fms-status-dd', this)">All statuses</button>
+              <div class="filter-ms-dropdown" id="fms-status-dd">
+                <div class="filter-ms-option"><input type="checkbox" id="fms-s-active" value="Active" onchange="onFilterMSChange('fms-status-dd','fms-status-trigger','All statuses');filterAccounts()"><label for="fms-s-active">Active</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-s-inactive" value="Inactive" onchange="onFilterMSChange('fms-status-dd','fms-status-trigger','All statuses');filterAccounts()"><label for="fms-s-inactive">Inactive</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-s-prospect" value="Prospect" onchange="onFilterMSChange('fms-status-dd','fms-status-trigger','All statuses');filterAccounts()"><label for="fms-s-prospect">Prospect</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-s-complete" value="Complete" onchange="onFilterMSChange('fms-status-dd','fms-status-trigger','All statuses');filterAccounts()"><label for="fms-s-complete">Complete</label></div>
+              </div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-am-trigger" onclick="toggleFilterMS('fms-am-dd', this)">All AMs</button>
+              <div class="filter-ms-dropdown" id="fms-am-dd"></div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-health-trigger" onclick="toggleFilterMS('fms-health-dd', this)">All health</button>
+              <div class="filter-ms-dropdown" id="fms-health-dd">
+                <div class="filter-ms-option"><input type="checkbox" id="fms-h-green" value="Green" onchange="onFilterMSChange('fms-health-dd','fms-health-trigger','All health');filterAccounts()"><label for="fms-h-green">Green</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-h-yellow" value="Yellow" onchange="onFilterMSChange('fms-health-dd','fms-health-trigger','All health');filterAccounts()"><label for="fms-h-yellow">Yellow</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-h-red" value="Red" onchange="onFilterMSChange('fms-health-dd','fms-health-trigger','All health');filterAccounts()"><label for="fms-h-red">Red</label></div>
+              </div>
+            </div>
+            <button class="filter-clear" id="acct-filter-clear" onclick="clearAccountFilters()" style="display:none">Clear filters</button>
           </div>
           <div style="overflow-x:auto;">
             <table class="data-table" id="accounts-table">
@@ -1798,11 +1873,12 @@
                   <th class="sortable" onclick="sortTable('accounts','arr')">ARR <span class="sort-icon">↕</span></th>
                   <th class="sortable" onclick="sortTable('accounts','total_contract_value')">TCV <span class="sort-icon">↕</span></th>
                   <th>TAO <span style="font-size:10px;color:#9CA3AF;font-weight:400">(whitespace)</span></th>
+                  <th>Active pipeline</th>
                   <th style="width:140px"></th>
                 </tr>
               </thead>
               <tbody id="accounts-grid">
-                <tr><td colspan="9"><div class="loading-state"><div class="loading-spinner"></div><p>Loading accounts...</p></div></td></tr>
+                <tr><td colspan="10"><div class="loading-state"><div class="loading-spinner"></div><p>Loading accounts...</p></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -1823,36 +1899,51 @@
             </div>
           </div>
           <div class="filter-row" id="eng-filter-row">
-            <select class="filter-select" id="filter-eng-account" onchange="filterEngagements()">
-              <option value="">All accounts</option>
-            </select>
-            <select class="filter-select" id="filter-eng-program" onchange="filterEngagements()">
-              <option value="">All programs</option>
-              <option>valueREV</option><option>dealREV</option><option>pipelineREV</option>
-              <option>rampREV</option><option>leaderREV</option><option>growthREV</option>
-              <option>roiREV</option><option>partnerREV</option><option>REVaaS</option>
-              <option>Custom</option><option>Partner Pipeline</option>
-            </select>
-            <select class="filter-select" id="filter-eng-phase" onchange="filterEngagements()">
-              <option value="">All phases</option>
-              <option>Scoping</option>
-              <option>Build</option>
-              <option>Active delivery</option>
-              <option>Maintenance / embedding</option>
-              <option>Wind-down</option>
-              <option>On Hold / Cancelled</option>
-              <option>Complete</option>
-            </select>
-            <select class="filter-select" id="filter-eng-am" onchange="filterEngagements()">
-              <option value="">All AMs</option>
-            </select>
-            <select class="filter-select" id="filter-eng-enddate" onchange="filterEngagements()">
-              <option value="">Any end date</option>
-              <option value="this-month">Ending this month</option>
-              <option value="next-month">Ending next month</option>
-              <option value="this-quarter">Ending this quarter</option>
-              <option value="next-quarter">Ending next quarter</option>
-            </select>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-eng-account-trigger" onclick="toggleFilterMS('fms-eng-account-dd', this)">All accounts</button>
+              <div class="filter-ms-dropdown" id="fms-eng-account-dd"></div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-eng-program-trigger" onclick="toggleFilterMS('fms-eng-program-dd', this)">All programs</button>
+              <div class="filter-ms-dropdown" id="fms-eng-program-dd">
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-valueREV" value="valueREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-valueREV">valueREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-dealREV" value="dealREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-dealREV">dealREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-pipelineREV" value="pipelineREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-pipelineREV">pipelineREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-rampREV" value="rampREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-rampREV">rampREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-leaderREV" value="leaderREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-leaderREV">leaderREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-growthREV" value="growthREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-growthREV">growthREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-roiREV" value="roiREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-roiREV">roiREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-partnerREV" value="partnerREV" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-partnerREV">partnerREV</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-REVaaS" value="REVaaS" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-REVaaS">REVaaS</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-Custom" value="Custom" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-Custom">Custom</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ep-PartnerPipeline" value="Partner Pipeline" onchange="onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');filterEngagements()"><label for="fms-ep-PartnerPipeline">Partner Pipeline</label></div>
+              </div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-eng-phase-trigger" onclick="toggleFilterMS('fms-eng-phase-dd', this)">All phases</button>
+              <div class="filter-ms-dropdown" id="fms-eng-phase-dd">
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ph-scoping" value="Scoping" onchange="onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');filterEngagements()"><label for="fms-ph-scoping">Scoping</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ph-build" value="Build" onchange="onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');filterEngagements()"><label for="fms-ph-build">Build</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ph-active" value="Active delivery" onchange="onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');filterEngagements()"><label for="fms-ph-active">Active delivery</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ph-maintenance" value="Maintenance / embedding" onchange="onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');filterEngagements()"><label for="fms-ph-maintenance">Maintenance / embedding</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ph-winddown" value="Wind-down" onchange="onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');filterEngagements()"><label for="fms-ph-winddown">Wind-down</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ph-hold" value="On Hold / Cancelled" onchange="onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');filterEngagements()"><label for="fms-ph-hold">On Hold / Cancelled</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ph-complete" value="Complete" onchange="onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');filterEngagements()"><label for="fms-ph-complete">Complete</label></div>
+              </div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-eng-am-trigger" onclick="toggleFilterMS('fms-eng-am-dd', this)">All AMs</button>
+              <div class="filter-ms-dropdown" id="fms-eng-am-dd"></div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-eng-enddate-trigger" onclick="toggleFilterMS('fms-eng-enddate-dd', this)">Any end date</button>
+              <div class="filter-ms-dropdown" id="fms-eng-enddate-dd">
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ed-thismonth" value="this-month" onchange="onFilterMSChange('fms-eng-enddate-dd','fms-eng-enddate-trigger','Any end date');filterEngagements()"><label for="fms-ed-thismonth">Ending this month</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ed-nextmonth" value="next-month" onchange="onFilterMSChange('fms-eng-enddate-dd','fms-eng-enddate-trigger','Any end date');filterEngagements()"><label for="fms-ed-nextmonth">Ending next month</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ed-thisqtr" value="this-quarter" onchange="onFilterMSChange('fms-eng-enddate-dd','fms-eng-enddate-trigger','Any end date');filterEngagements()"><label for="fms-ed-thisqtr">Ending this quarter</label></div>
+                <div class="filter-ms-option"><input type="checkbox" id="fms-ed-nextqtr" value="next-quarter" onchange="onFilterMSChange('fms-eng-enddate-dd','fms-eng-enddate-trigger','Any end date');filterEngagements()"><label for="fms-ed-nextqtr">Ending next quarter</label></div>
+              </div>
+            </div>
             <button class="filter-clear" id="eng-filter-clear" onclick="clearEngFilters()" style="display:none">Clear filters</button>
           </div>
 
@@ -2020,6 +2111,12 @@
               <div class="detail-field">
                 <div class="detail-label">Lead AM</div>
                 <select class="detail-select" id="d-lead_am" data-field="lead_am" onchange="saveDetailField(this)">
+                  <option value="">–</option>
+                </select>
+              </div>
+              <div class="detail-field">
+                <div class="detail-label">Co-Lead</div>
+                <select class="detail-select" id="d-co_lead" data-field="co_lead" onchange="saveDetailField(this)">
                   <option value="">–</option>
                 </select>
               </div>
@@ -2364,6 +2461,12 @@
           <label class="form-label">Lead AM</label>
           <select class="form-select" id="a-lead_am">
             <option value="">Select AM...</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Co-Lead</label>
+          <select class="form-select" id="a-co_lead">
+            <option value="">Select...</option>
           </select>
         </div>
         <div class="form-field">
@@ -2833,7 +2936,7 @@ function renderAccounts(accounts) {
   document.getElementById('accounts-count').textContent = accounts.length + ' accounts';
 
   if (!accounts.length) {
-    document.getElementById('accounts-grid').innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>No accounts yet.</p></div></td></tr>';
+    document.getElementById('accounts-grid').innerHTML = '<tr><td colspan="10"><div class="empty-state"><p>No accounts yet.</p></div></td></tr>';
     return;
   }
 
@@ -2844,12 +2947,19 @@ function renderAccounts(accounts) {
     const tcv = a.total_contract_value ? formatCurrency(a.total_contract_value) : '–';
     const arr = a.arr ? formatCurrency(a.arr) : '–';
 
-    // TAO only shown for Active and Inactive accounts
-    const taoExcluded = a.status === 'Complete' || a.status === 'Prospect';
-    const taoVal = taoExcluded ? 0 : allWhitespace
-      .filter(w => w.account_id === a.id && taoStatuses.includes(w.status))
+    // TAO and Active Pipeline only shown for Active and Inactive accounts
+    const excluded = a.status === 'Complete' || a.status === 'Prospect';
+    const acctWs = allWhitespace.filter(w => w.account_id === a.id);
+
+    const taoVal = excluded ? 0 : acctWs
+      .filter(w => taoStatuses.includes(w.status))
       .reduce((sum, w) => sum + (parseFloat(w.override_price) || parseFloat(w.list_price) || 0), 0);
-    const tao = taoExcluded ? '–' : (taoVal > 0 ? formatCurrency(taoVal) : '–');
+    const tao = excluded ? '–' : (taoVal > 0 ? formatCurrency(taoVal) : '–');
+
+    const pipelineVal = excluded ? 0 : acctWs
+      .filter(w => w.status === 'Active pipeline')
+      .reduce((sum, w) => sum + (parseFloat(w.override_price) || parseFloat(w.list_price) || 0), 0);
+    const pipeline = excluded ? '–' : (pipelineVal > 0 ? formatCurrency(pipelineVal) : '–');
 
     return `<tr style="cursor:pointer" onclick="openAccountDetail('${a.id}')">
       <td><strong>${a.account_name}</strong></td>
@@ -2860,6 +2970,7 @@ function renderAccounts(accounts) {
       <td style="font-family:'DM Mono',monospace;font-size:12px">${arr}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${tcv}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);font-weight:600">${tao}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--cyan);font-weight:600">${pipeline}</td>
       <td style="white-space:nowrap" onclick="event.stopPropagation()">
         <div style="display:flex;gap:6px;justify-content:flex-end">
           <button class="btn-primary" style="padding:4px 10px;font-size:11px" onclick="openEngagementForm(null,'${a.id}','${a.account_name.replace(/'/g,"\\'")}')">+ Engagement</button>
@@ -2871,16 +2982,73 @@ function renderAccounts(accounts) {
   document.getElementById('accounts-grid').innerHTML = html;
 }
 
+function getFilterMSValues(ddId) {
+  const dd = document.getElementById(ddId);
+  if (!dd) return [];
+  return Array.from(dd.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+}
+
+function onFilterMSChange(ddId, triggerId, placeholder) {
+  const dd = document.getElementById(ddId);
+  const trigger = document.getElementById(triggerId);
+  if (!dd || !trigger) return;
+  const checked = Array.from(dd.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+  if (checked.length === 0) {
+    trigger.textContent = placeholder;
+    trigger.classList.remove('active');
+  } else if (checked.length === 1) {
+    trigger.textContent = checked[0];
+    trigger.classList.add('active');
+  } else {
+    trigger.textContent = checked.length + ' selected';
+    trigger.classList.add('active');
+  }
+}
+
+function toggleFilterMS(ddId, triggerEl) {
+  const dd = document.getElementById(ddId);
+  if (!dd) return;
+  const isOpen = dd.classList.contains('open');
+  // Close all filter dropdowns
+  document.querySelectorAll('.filter-ms-dropdown.open').forEach(d => d.classList.remove('open'));
+  if (!isOpen) {
+    dd.classList.add('open');
+    setTimeout(() => {
+      document.addEventListener('click', function handler(e) {
+        if (!dd.contains(e.target) && e.target !== triggerEl) {
+          dd.classList.remove('open');
+          document.removeEventListener('click', handler);
+        }
+      });
+    }, 0);
+  }
+}
+
 function filterAccounts() {
-  const status = document.getElementById('filter-status').value;
-  const am = document.getElementById('filter-am').value;
-  const health = document.getElementById('filter-health').value;
+  const statuses = getFilterMSValues('fms-status-dd');
+  const ams = getFilterMSValues('fms-am-dd');
+  const healths = getFilterMSValues('fms-health-dd');
+
+  const anyActive = statuses.length || ams.length || healths.length;
+  const clearBtn = document.getElementById('acct-filter-clear');
+  if (clearBtn) clearBtn.style.display = anyActive ? 'inline' : 'none';
 
   let filtered = allAccounts;
-  if (status) filtered = filtered.filter(a => a.status === status);
-  if (am) filtered = filtered.filter(a => a.lead_am === am);
-  if (health) filtered = filtered.filter(a => a.health === health);
+  if (statuses.length) filtered = filtered.filter(a => statuses.includes(a.status));
+  if (ams.length) filtered = filtered.filter(a => ams.includes(a.lead_am));
+  if (healths.length) filtered = filtered.filter(a => healths.includes(a.health));
   renderAccounts(filtered);
+}
+
+function clearAccountFilters() {
+  ['fms-status-dd','fms-am-dd','fms-health-dd'].forEach(ddId => {
+    const dd = document.getElementById(ddId);
+    if (dd) dd.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+  });
+  onFilterMSChange('fms-status-dd','fms-status-trigger','All statuses');
+  onFilterMSChange('fms-am-dd','fms-am-trigger','All AMs');
+  onFilterMSChange('fms-health-dd','fms-health-trigger','All health');
+  filterAccounts();
 }
 
 let currentDetailAccountId = null;
@@ -2918,11 +3086,17 @@ function openAccountDetail(id) {
   document.getElementById('d-expansion_strategy').value = account.expansion_strategy || '';
   document.getElementById('d-next_steps').value = account.next_steps || '';
 
-  const eligibleRoles = ['Engagement Lead','Pod Leader','Support AM'];
+  const eligibleRoles = ['Engagement Lead','Specialist','Pod Leader','ELT','Support AM'];
   const leadSel = document.getElementById('d-lead_am');
   leadSel.innerHTML = '<option value="">–</option>' +
     allPeople.filter(p => p.status === 'Active' && eligibleRoles.includes(p.role))
       .map(p => `<option${account.lead_am === p.full_name ? ' selected' : ''}>${p.full_name}</option>`)
+      .join('');
+
+  const coLeadSel = document.getElementById('d-co_lead');
+  coLeadSel.innerHTML = '<option value="">–</option>' +
+    allPeople.filter(p => p.status === 'Active' && eligibleRoles.includes(p.role))
+      .map(p => `<option${account.co_lead === p.full_name ? ' selected' : ''}>${p.full_name}</option>`)
       .join('');
 
   renderDetailEngagements(id);
@@ -3228,48 +3402,43 @@ function renderEngagements(engagements) {
 }
 
 function filterEngagements() {
-  const account = document.getElementById('filter-eng-account').value;
-  const program = document.getElementById('filter-eng-program').value;
-  const phase = document.getElementById('filter-eng-phase').value;
-  const am = document.getElementById('filter-eng-am').value;
-  const endDate = document.getElementById('filter-eng-enddate').value;
+  const accounts = getFilterMSValues('fms-eng-account-dd');
+  const programs = getFilterMSValues('fms-eng-program-dd');
+  const phases = getFilterMSValues('fms-eng-phase-dd');
+  const ams = getFilterMSValues('fms-eng-am-dd');
+  const endDates = getFilterMSValues('fms-eng-enddate-dd');
 
-  const anyActive = account || program || phase || am || endDate;
+  const anyActive = accounts.length || programs.length || phases.length || ams.length || endDates.length;
   const clearBtn = document.getElementById('eng-filter-clear');
   if (clearBtn) clearBtn.style.display = anyActive ? 'inline' : 'none';
 
   let filtered = allEngagements;
-  if (account) filtered = filtered.filter(e => (e.accounts?.account_name || '') === account);
-  if (program) filtered = filtered.filter(e => e.rev_program === program);
-  if (phase)   filtered = filtered.filter(e => e.phase === phase);
-  if (am)      filtered = filtered.filter(e => e.lead_am === am);
+  if (accounts.length) filtered = filtered.filter(e => accounts.includes(e.accounts?.account_name || ''));
+  if (programs.length) filtered = filtered.filter(e => programs.includes(e.rev_program));
+  if (phases.length)   filtered = filtered.filter(e => phases.includes(e.phase));
+  if (ams.length)      filtered = filtered.filter(e => ams.includes(e.lead_am));
 
-  if (endDate) {
+  if (endDates.length) {
     const now = new Date();
     const y = now.getFullYear();
-    const m = now.getMonth(); // 0-based
-    let rangeStart, rangeEnd;
+    const m = now.getMonth();
+    const ranges = [];
 
-    if (endDate === 'this-month') {
-      rangeStart = new Date(y, m, 1);
-      rangeEnd   = new Date(y, m + 1, 0);
-    } else if (endDate === 'next-month') {
-      rangeStart = new Date(y, m + 1, 1);
-      rangeEnd   = new Date(y, m + 2, 0);
-    } else if (endDate === 'this-quarter') {
-      const qStart = Math.floor(m / 3) * 3;
-      rangeStart = new Date(y, qStart, 1);
-      rangeEnd   = new Date(y, qStart + 3, 0);
-    } else if (endDate === 'next-quarter') {
-      const qStart = Math.floor(m / 3) * 3 + 3;
-      rangeStart = new Date(y, qStart, 1);
-      rangeEnd   = new Date(y, qStart + 3, 0);
+    if (endDates.includes('this-month'))  ranges.push({ s: new Date(y, m, 1),     e: new Date(y, m + 1, 0) });
+    if (endDates.includes('next-month'))  ranges.push({ s: new Date(y, m + 1, 1), e: new Date(y, m + 2, 0) });
+    if (endDates.includes('this-quarter')) {
+      const qS = Math.floor(m / 3) * 3;
+      ranges.push({ s: new Date(y, qS, 1), e: new Date(y, qS + 3, 0) });
     }
-    if (rangeStart && rangeEnd) {
+    if (endDates.includes('next-quarter')) {
+      const qS = Math.floor(m / 3) * 3 + 3;
+      ranges.push({ s: new Date(y, qS, 1), e: new Date(y, qS + 3, 0) });
+    }
+    if (ranges.length) {
       filtered = filtered.filter(e => {
         if (!e.target_end_date) return false;
         const d = new Date(e.target_end_date);
-        return d >= rangeStart && d <= rangeEnd;
+        return ranges.some(r => d >= r.s && d <= r.e);
       });
     }
   }
@@ -3281,26 +3450,30 @@ function filterEngagements() {
 }
 
 function clearEngFilters() {
-  ['filter-eng-account','filter-eng-program','filter-eng-phase','filter-eng-am','filter-eng-enddate'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
+  ['fms-eng-account-dd','fms-eng-program-dd','fms-eng-phase-dd','fms-eng-am-dd','fms-eng-enddate-dd'].forEach(ddId => {
+    const dd = document.getElementById(ddId);
+    if (dd) dd.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
   });
+  onFilterMSChange('fms-eng-account-dd','fms-eng-account-trigger','All accounts');
+  onFilterMSChange('fms-eng-program-dd','fms-eng-program-trigger','All programs');
+  onFilterMSChange('fms-eng-phase-dd','fms-eng-phase-trigger','All phases');
+  onFilterMSChange('fms-eng-am-dd','fms-eng-am-trigger','All AMs');
+  onFilterMSChange('fms-eng-enddate-dd','fms-eng-enddate-trigger','Any end date');
   filterEngagements();
 }
 
 function populateEngagementFilters() {
-  // Account filter
   const accounts = [...new Set(allEngagements.map(e => e.accounts?.account_name).filter(Boolean))].sort();
-  const accSel = document.getElementById('filter-eng-account');
-  if (accSel) {
-    const cur = accSel.value;
-    while (accSel.options.length > 1) accSel.remove(1);
-    accounts.forEach(a => {
-      const opt = document.createElement('option');
-      opt.value = a; opt.textContent = a;
-      accSel.appendChild(opt);
-    });
-    accSel.value = cur;
+  const dd = document.getElementById('fms-eng-account-dd');
+  if (dd) {
+    const checked = getFilterMSValues('fms-eng-account-dd');
+    dd.innerHTML = accounts.map(a => `
+      <div class="filter-ms-option">
+        <input type="checkbox" id="fms-ea-${a.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9-]/g,'')}" value="${escHtml(a)}"
+          ${checked.includes(a) ? 'checked' : ''}
+          onchange="onFilterMSChange('fms-eng-account-dd','fms-eng-account-trigger','All accounts');filterEngagements()">
+        <label for="fms-ea-${a.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9-]/g,'')}">${escHtml(a)}</label>
+      </div>`).join('');
   }
 }
 
@@ -3523,21 +3696,21 @@ function sortTable(table, col) {
 
   if (table === 'accounts') {
     const sorted = sortData([...allAccounts], col, s.dir, col === 'account_name' ? 'account_name' : col);
-    // Apply current filters too
-    const status = document.getElementById('filter-status').value;
-    const am = document.getElementById('filter-am').value;
-    const health = document.getElementById('filter-health').value;
+    // Apply current filters
+    const statuses = getFilterMSValues('fms-status-dd');
+    const ams = getFilterMSValues('fms-am-dd');
+    const healths = getFilterMSValues('fms-health-dd');
     let filtered = sorted;
-    if (status) filtered = filtered.filter(a => a.status === status);
-    if (am) filtered = filtered.filter(a => a.lead_am === am);
-    if (health) filtered = filtered.filter(a => a.health === health);
+    if (statuses.length) filtered = filtered.filter(a => statuses.includes(a.status));
+    if (ams.length) filtered = filtered.filter(a => ams.includes(a.lead_am));
+    if (healths.length) filtered = filtered.filter(a => healths.includes(a.health));
     renderAccounts(filtered);
   } else if (table === 'engagements') {
     const key = col === 'account_name' ? (e => e.accounts?.account_name || '') : null;
     const sorted = sortData([...allEngagements], col, s.dir, key);
-    const phase = document.getElementById('filter-eng-phase').value;
+    const phases = getFilterMSValues('fms-eng-phase-dd');
     let filtered = sorted;
-    if (phase) filtered = filtered.filter(e => e.phase === phase);
+    if (phases.length) filtered = filtered.filter(e => phases.includes(e.phase));
     renderEngagements(filtered);
   } else if (table === 'people') {
     const sorted = sortData([...allPeople], col, s.dir);
@@ -3605,17 +3778,35 @@ function renderPeopleData(people) {
 function populateAMFilters() {
   const ams = [...new Set(allPeople.filter(p => p.role?.includes('AM') || p.can_lead).map(p => p.full_name))].sort();
 
-  ['filter-am', 'filter-eng-am'].forEach(id => {
-    const sel = document.getElementById(id);
-    const current = sel.value;
-    while (sel.options.length > 1) sel.remove(1);
-    ams.forEach(am => {
-      const opt = document.createElement('option');
-      opt.value = am; opt.textContent = am;
-      sel.appendChild(opt);
-    });
-    sel.value = current;
-  });
+  // Accounts AM filter
+  const acctDd = document.getElementById('fms-am-dd');
+  if (acctDd) {
+    const checked = getFilterMSValues('fms-am-dd');
+    acctDd.innerHTML = ams.map(am => {
+      const safeId = 'fms-ama-' + am.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9-]/g,'');
+      return `<div class="filter-ms-option">
+        <input type="checkbox" id="${safeId}" value="${escHtml(am)}"
+          ${checked.includes(am) ? 'checked' : ''}
+          onchange="onFilterMSChange('fms-am-dd','fms-am-trigger','All AMs');filterAccounts()">
+        <label for="${safeId}">${escHtml(am)}</label>
+      </div>`;
+    }).join('');
+  }
+
+  // Engagements AM filter
+  const engDd = document.getElementById('fms-eng-am-dd');
+  if (engDd) {
+    const checked = getFilterMSValues('fms-eng-am-dd');
+    engDd.innerHTML = ams.map(am => {
+      const safeId = 'fms-ame-' + am.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9-]/g,'');
+      return `<div class="filter-ms-option">
+        <input type="checkbox" id="${safeId}" value="${escHtml(am)}"
+          ${checked.includes(am) ? 'checked' : ''}
+          onchange="onFilterMSChange('fms-eng-am-dd','fms-eng-am-trigger','All AMs');filterEngagements()">
+        <label for="${safeId}">${escHtml(am)}</label>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ── NAVIGATION ──
@@ -3856,8 +4047,23 @@ function buildWhitespaceTable(existingRows = []) {
 }
 
 function buildLeadAMOptions() {
-  const eligibleRoles = ['Engagement Lead','Pod Leader','Support AM'];
+  const eligibleRoles = ['Engagement Lead','Specialist','Pod Leader','ELT','Support AM'];
   const sel = document.getElementById('a-lead_am');
+  const current = sel.value;
+  while (sel.options.length > 1) sel.remove(1);
+  allPeople.filter(p => p.status === 'Active' && eligibleRoles.includes(p.role)).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.full_name;
+    opt.textContent = p.full_name;
+    sel.appendChild(opt);
+  });
+  sel.value = current;
+}
+
+function buildCoLeadOptions() {
+  const eligibleRoles = ['Engagement Lead','Specialist','Pod Leader','ELT','Support AM'];
+  const sel = document.getElementById('a-co_lead');
+  if (!sel) return;
   const current = sel.value;
   while (sel.options.length > 1) sel.remove(1);
   allPeople.filter(p => p.status === 'Active' && eligibleRoles.includes(p.role)).forEach(p => {
@@ -3893,9 +4099,11 @@ function openAccountForm(account = null) {
   document.getElementById('a-date_first_purchase').value = account?.date_first_purchase ? account.date_first_purchase.substring(0,7) : '';
   document.getElementById('a-most_recent_purchase').value = account?.most_recent_purchase ? account.most_recent_purchase.substring(0,7) : '';
 
-  // AM dropdown
+  // AM dropdowns
   buildLeadAMOptions();
+  buildCoLeadOptions();
   if (account?.lead_am) document.getElementById('a-lead_am').value = account.lead_am;
+  if (account?.co_lead) document.getElementById('a-co_lead').value = account.co_lead;
 
   // Engagements
   document.getElementById('engagements-form-list').innerHTML = '';
@@ -4085,6 +4293,7 @@ async function saveAccount() {
     health: document.getElementById('a-health').value || null,
     health_note: document.getElementById('a-health_note').value.trim() || null,
     lead_am: document.getElementById('a-lead_am').value || null,
+    co_lead: document.getElementById('a-co_lead').value || null,
     total_contract_value: parseCurrencyInput(document.getElementById('a-total_contract_value').value),
     crm_link: document.getElementById('a-crm_link').value.trim() || null,
     date_first_purchase: document.getElementById('a-date_first_purchase').value ? document.getElementById('a-date_first_purchase').value + '-01' : null,
