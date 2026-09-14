@@ -1454,13 +1454,15 @@
   .ts-completed { background: #DCF2F2; color: var(--cyan); }
   .ts-cancelled { background: #FEE2E2; color: #991B1B; }
   /* Purpose */
-  .tp-session   { background: var(--light-green); color: var(--treasury); }
   .tp-kickoff   { background: #EDE9FE; color: #5B21B6; }
-  .tp-qbr       { background: #DBEAFE; color: #1E40AF; }
-  .tp-discovery { background: #E0F2FE; color: #075985; }
+  .tp-training  { background: var(--light-green); color: var(--treasury); }
+  .tp-workshop  { background: #DCF2F2; color: #2B6E70; }
+  .tp-bootcamp  { background: #E0E7FF; color: #3730A3; }
+  .tp-sko       { background: #FFE4E6; color: #9F1239; }
   .tp-conf      { background: #FEF3C7; color: #92400E; }
+  .tp-ebr       { background: #DBEAFE; color: #1E40AF; }
   .tp-internal  { background: #F3F4F6; color: #6B7280; }
-  .tp-other     { background: #F3F4F6; color: #6B7280; }
+  .tp-other     { background: #F9FAFB; color: #9CA3AF; }
 
   tr.trip-cancelled td { opacity: 0.55; }
 
@@ -2130,7 +2132,6 @@
                     <th class="sortable" onclick="sortTable('trips','start_date')">Dates <span class="sort-icon">&darr;</span></th>
                     <th class="sortable" onclick="sortTable('trips','days')">Days <span class="sort-icon">&#8597;</span></th>
                     <th class="sortable" onclick="sortTable('trips','place')">Place <span class="sort-icon">&#8597;</span></th>
-                    <th class="sortable" onclick="sortTable('trips','country')">Country <span class="sort-icon">&#8597;</span></th>
                     <th class="sortable" onclick="sortTable('trips','account')">Account <span class="sort-icon">&#8597;</span></th>
                     <th class="sortable" onclick="sortTable('trips','purpose')">Purpose <span class="sort-icon">&#8597;</span></th>
                     <th>Attendees</th>
@@ -2475,6 +2476,40 @@
     </div>
     <div class="modal-body">
 
+      <div class="modal-section-label">What and why</div>
+      <div class="form-grid thirds" style="margin-bottom:24px">
+        <div class="form-field span-3">
+          <label class="form-label">Trip title *</label>
+          <input class="form-input" id="tf-title" placeholder="Parloa cohort 3 kickoff">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Account</label>
+          <select class="form-select" id="tf-account_id" onchange="onTripAccountChange()">
+            <option value="">No account (internal)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Engagement</label>
+          <select class="form-select" id="tf-engagement_id">
+            <option value="">None</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Purpose *</label>
+          <select class="form-select" id="tf-purpose">
+            <option value="">Select...</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="tf-status"></select>
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="tf-notes" placeholder="Trip notes..."></textarea>
+        </div>
+      </div>
+
       <div class="modal-section-label">Where and when</div>
       <div class="form-grid thirds" style="margin-bottom:8px">
         <div class="form-field span-3">
@@ -2526,40 +2561,6 @@
               <input class="form-input" id="tf-country_code" placeholder="DE" maxlength="2">
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="modal-section-label">What and why</div>
-      <div class="form-grid thirds" style="margin-bottom:24px">
-        <div class="form-field">
-          <label class="form-label">Account</label>
-          <select class="form-select" id="tf-account_id" onchange="onTripAccountChange()">
-            <option value="">No account (internal)</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Engagement</label>
-          <select class="form-select" id="tf-engagement_id">
-            <option value="">None</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Purpose *</label>
-          <select class="form-select" id="tf-purpose">
-            <option value="">Select...</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Status</label>
-          <select class="form-select" id="tf-status"></select>
-        </div>
-        <div class="form-field span-2">
-          <label class="form-label">Title</label>
-          <input class="form-input" id="tf-title" placeholder="Parloa cohort 3 kickoff">
-        </div>
-        <div class="form-field span-3">
-          <label class="form-label">Notes</label>
-          <textarea class="form-textarea" id="tf-notes" placeholder="Trip notes..."></textarea>
         </div>
       </div>
 
@@ -3989,15 +3990,17 @@ function personName(personId) {
 }
 
 function purposeToClass(purpose) {
-  if (!purpose) return 'tp-other';
-  const p = purpose.toLowerCase();
-  if (p.includes('kickoff')) return 'tp-kickoff';
-  if (p.includes('qbr') || p.includes('exec')) return 'tp-qbr';
-  if (p.includes('discovery')) return 'tp-discovery';
-  if (p.includes('conference') || p.includes('event')) return 'tp-conf';
-  if (p.includes('internal') || p.includes('offsite')) return 'tp-internal';
-  if (p.includes('client session')) return 'tp-session';
-  return 'tp-other';
+  switch (purpose) {
+    case 'Kickoff':          return 'tp-kickoff';
+    case 'Training':         return 'tp-training';
+    case 'Workshop':         return 'tp-workshop';
+    case 'Boot Camp':        return 'tp-bootcamp';
+    case 'SKO':              return 'tp-sko';
+    case 'Conference/event': return 'tp-conf';
+    case 'EBR':              return 'tp-ebr';
+    case 'Internal':         return 'tp-internal';
+    default:                 return 'tp-other';
+  }
 }
 
 function tripStatusToClass(status) {
@@ -4043,7 +4046,7 @@ function renderTripsTable(trips) {
   if (!tbody) return;
 
   if (!trips.length) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>No trips logged yet. Add the first one to get started.</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>No trips logged yet. Add the first one to get started.</p></div></td></tr>';
     return;
   }
 
@@ -4057,7 +4060,6 @@ function renderTripsTable(trips) {
       <td class="trip-dates-cell">${formatTripDates(t)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${tripDays(t)}</td>
       <td><strong>${escHtml(tripPlaceLabel(t)) || '\u2013'}</strong>${t.title ? `<div style="font-size:11px;color:#9CA3AF">${escHtml(t.title)}</div>` : ''}</td>
-      <td style="font-size:12px">${escHtml(t.country) || '\u2013'}</td>
       <td style="font-size:12px">${escHtml(account)}</td>
       <td><span class="trip-badge ${purposeToClass(t.purpose)}">${escHtml(t.purpose) || '\u2013'}</span></td>
       <td class="trip-attendees-cell">${escHtml(who)}</td>
@@ -4110,9 +4112,13 @@ function onTripAccountChange() {
 }
 
 function buildTripPurposeOptions(selected) {
+  // An older purpose value that's no longer on the list stays selectable, so
+  // editing an existing trip never silently wipes what it was logged as.
+  const options = TRIP_PURPOSES.slice();
+  if (selected && !options.includes(selected)) options.unshift(selected);
   document.getElementById('tf-purpose').innerHTML =
     '<option value="">Select...</option>' +
-    TRIP_PURPOSES.map(p => `<option${selected === p ? ' selected' : ''}>${p}</option>`).join('');
+    options.map(p => `<option${selected === p ? ' selected' : ''}>${escHtml(p)}</option>`).join('');
 }
 
 function buildTripStatusOptions(selected) {
@@ -4268,12 +4274,14 @@ function closeTripForm() {
 }
 
 async function saveTrip() {
+  const title = document.getElementById('tf-title').value.trim();
   const location = document.getElementById('tf-location_label').value.trim();
   const start = document.getElementById('tf-start_date').value;
   const end = document.getElementById('tf-end_date').value;
   const purpose = document.getElementById('tf-purpose').value;
   const attendeeIds = getMSValues('tf-att-dd');
 
+  if (!title) { showToast('Trip title is required'); return; }
   if (!location) { showToast('Location is required'); return; }
   if (!start || !end) { showToast('Start and end dates are required'); return; }
   if (end < start) { showToast('End date cannot be before the start date'); return; }
@@ -4290,7 +4298,7 @@ async function saveTrip() {
   const payload = {
     account_id:     document.getElementById('tf-account_id').value || null,
     engagement_id:  document.getElementById('tf-engagement_id').value || null,
-    title:          document.getElementById('tf-title').value.trim() || null,
+    title:          title,
     purpose:        purpose,
     status:         document.getElementById('tf-status').value || 'Planned',
     start_date:     start,
@@ -4680,7 +4688,7 @@ const ENGAGEMENT_PHASES = ['Scoping','Build','Active delivery','Maintenance / em
 const ENGAGEMENT_SCOPES = ['Heavy 1.5','Standard 1.0','Light 0.5'];
 const WS_STATUSES = ['Purchased','Active pipeline','Potential','Not needed','Unknown'];
 
-const TRIP_PURPOSES = ['Client session','Kickoff','QBR / exec review','Discovery','Conference / event','Internal / offsite','Other'];
+const TRIP_PURPOSES = ['Kickoff','Training','Workshop','Boot Camp','SKO','Conference/event','EBR','Internal','Other'];
 const TRIP_STATUSES = ['Planned','Confirmed','Completed','Cancelled'];
 
 let editingPersonId = null;
