@@ -1503,6 +1503,141 @@
   .tf-override-name { font-size: 13px; color: var(--dark); }
   .tf-override-empty { font-size: 12px; color: #9CA3AF; padding: 8px 0; }
 
+  /* Filter row extras */
+  .travel-filter-row { border-bottom: var(--border); }
+  .filter-note {
+    margin-left: auto;
+    font-size: 11px;
+    color: #9CA3AF;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    white-space: nowrap;
+  }
+  .filter-ms-option input[type=radio] { accent-color: var(--green); flex-shrink: 0; width: 13px; height: 13px; }
+  .tr-custom-range { padding: 8px 12px; border-top: var(--border); display: none; }
+  .tr-custom-range.open { display: block; }
+  .tr-custom-range label { display: block; font-size: 11px; color: #9CA3AF; margin-bottom: 3px; }
+  .tr-custom-range input { width: 100%; margin-bottom: 8px; }
+
+  /* Section sub-labels */
+  .section-sub { font-size: 11px; color: #9CA3AF; margin-top: 2px; font-weight: 400; }
+
+  /* Travel days by person */
+  .td-list { padding: 6px 0; }
+  .td-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 84px;
+    align-items: center;
+    gap: 16px;
+    padding: 11px 20px;
+    border-bottom: var(--border);
+  }
+  .td-row:last-child { border-bottom: none; }
+  .td-row:hover { background: #FAFAFA; }
+  .td-name { font-size: 13px; font-weight: 500; color: var(--dark); }
+  .td-role { font-size: 11px; color: #9CA3AF; font-weight: 400; }
+  .td-track { position: relative; height: 8px; background: #F3F4F6; border-radius: 4px; }
+  .td-fill { height: 100%; border-radius: 4px; background: var(--green); }
+  .td-fill.over { background: var(--cyan); }
+  .td-fill.zero { background: #E5E7EB; }
+  .td-avg {
+    position: absolute; top: -4px; bottom: -4px;
+    width: 2px; background: rgba(33,42,54,0.35); border-radius: 1px;
+  }
+  .td-figures {
+    text-align: right;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 12px; color: var(--dark);
+    font-variant-numeric: tabular-nums;
+  }
+  .td-trips { color: #9CA3AF; font-size: 11px; }
+  .td-legend {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 20px; border-top: var(--border);
+    background: #FAFAFA; font-size: 11px; color: #6B7280;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+  .legend-rule { width: 2px; height: 11px; background: rgba(33,42,54,0.35); border-radius: 1px; }
+
+  /* Alerts */
+  .alert-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 20px 14px 17px;
+    border-bottom: var(--border);
+    border-left: 3px solid transparent;
+  }
+  .alert-row:last-child { border-bottom: none; }
+  .alert-row.sev-conflict  { border-left-color: #EF4444; background: #FFFBFB; }
+  .alert-row.sev-duplicate { border-left-color: #F59E0B; background: #FFFDF7; }
+  .alert-row.sev-overlap   { border-left-color: #F59E0B; background: #FFFDF7; }
+  .alert-row.sev-consolidate { border-left-color: var(--cyan); background: #FAFDFD; }
+  .alert-chip {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase; padding: 3px 7px; border-radius: 4px;
+    white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+  }
+  .chip-conflict    { background: #FEE2E2; color: #991B1B; }
+  .chip-duplicate   { background: #FEF3C7; color: #92400E; }
+  .chip-overlap     { background: #FEF3C7; color: #92400E; }
+  .chip-consolidate { background: var(--light-green); color: var(--treasury); }
+  .alert-body { min-width: 0; }
+  .alert-headline { font-size: 13px; font-weight: 500; color: var(--dark); margin-bottom: 3px; }
+  .alert-detail { font-size: 12px; color: #6B7280; line-height: 1.5; }
+  .alert-detail b { font-weight: 500; color: var(--dark); }
+
+  /* Upcoming */
+  .upcoming-group-label {
+    padding: 10px 20px 6px;
+    font-size: 10px; font-weight: 600; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: 0.7px;
+    background: #FAFAFA; border-bottom: var(--border); border-top: var(--border);
+  }
+  .up-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 170px 120px;
+    align-items: center; gap: 14px;
+    padding: 11px 20px; border-bottom: var(--border); font-size: 13px;
+  }
+  .up-row:last-child { border-bottom: none; }
+  .up-row:hover { background: #FAFAFA; cursor: pointer; }
+  .up-dates {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 12px; color: var(--dark); font-variant-numeric: tabular-nums;
+  }
+  .up-days { font-size: 11px; color: #9CA3AF; }
+  .up-where { font-weight: 500; color: var(--dark); }
+  .up-purpose { font-size: 11px; color: #6B7280; margin-top: 2px; }
+  .up-who { font-size: 12px; color: #6B7280; }
+
+  /* Rollup */
+  .mini-bar-wrap {
+    width: 70px; height: 4px; background: #F3F4F6;
+    border-radius: 2px; overflow: hidden;
+    display: inline-block; vertical-align: middle; margin-right: 8px;
+  }
+  .mini-bar { height: 100%; background: var(--cyan); border-radius: 2px; }
+  .ok-badge, .stale-badge, .never-badge {
+    font-size: 11px; font-weight: 500;
+    padding: 2px 8px; border-radius: 10px; white-space: nowrap;
+  }
+  .ok-badge    { background: var(--light-green); color: var(--treasury); }
+  .stale-badge { background: #FEF3C7; color: #92400E; }
+  .never-badge { background: #FEE2E2; color: #991B1B; }
+  .table-foot {
+    padding: 12px 16px; border-top: var(--border);
+    background: #FAFAFA; font-size: 11px; color: #6B7280; line-height: 1.5;
+  }
+  .cell-mono {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 12px; font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 900px) {
+    .up-row { grid-template-columns: 1fr; gap: 4px; }
+    .td-row { grid-template-columns: 130px 1fr 70px; gap: 10px; }
+  }
+
   .detail-page { display: none; animation: fadeIn 0.2s ease; }
   .detail-page.active { display: block; }
 
@@ -2110,13 +2245,105 @@
             </div>
           </div>
 
+          <div class="filter-row travel-filter-row" id="travel-filter-row">
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-tr-person-trigger" onclick="toggleFilterMS('fms-tr-person-dd', this)">All people</button>
+              <div class="filter-ms-dropdown" id="fms-tr-person-dd"></div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-tr-account-trigger" onclick="toggleFilterMS('fms-tr-account-dd', this)">All accounts</button>
+              <div class="filter-ms-dropdown" id="fms-tr-account-dd"></div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger" id="fms-tr-purpose-trigger" onclick="toggleFilterMS('fms-tr-purpose-dd', this)">All purposes</button>
+              <div class="filter-ms-dropdown" id="fms-tr-purpose-dd"></div>
+            </div>
+            <div class="filter-ms-wrap">
+              <button type="button" class="filter-ms-trigger active" id="fms-tr-date-trigger" onclick="toggleFilterMS('fms-tr-date-dd', this)">Current quarter</button>
+              <div class="filter-ms-dropdown" id="fms-tr-date-dd">
+                <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-month" value="month" onchange="setTravelDateMode('month')"><label for="tr-date-month">Current month</label></div>
+                <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-quarter" value="quarter" checked onchange="setTravelDateMode('quarter')"><label for="tr-date-quarter">Current quarter</label></div>
+                <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-next-month" value="next-month" onchange="setTravelDateMode('next-month')"><label for="tr-date-next-month">Next month</label></div>
+                <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-next-quarter" value="next-quarter" onchange="setTravelDateMode('next-quarter')"><label for="tr-date-next-quarter">Next quarter</label></div>
+                <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-ytd" value="ytd" onchange="setTravelDateMode('ytd')"><label for="tr-date-ytd">Year to date</label></div>
+                <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-all" value="all" onchange="setTravelDateMode('all')"><label for="tr-date-all">All time</label></div>
+                <div class="filter-ms-divider"></div>
+                <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-custom" value="custom" onchange="setTravelDateMode('custom')"><label for="tr-date-custom">Custom range&hellip;</label></div>
+                <div class="tr-custom-range" id="tr-custom-range">
+                  <label for="tr-custom-start">From</label>
+                  <input class="form-input" type="date" id="tr-custom-start" onchange="onTravelCustomRangeChange()">
+                  <label for="tr-custom-end">To</label>
+                  <input class="form-input" type="date" id="tr-custom-end" onchange="onTravelCustomRangeChange()">
+                </div>
+              </div>
+            </div>
+            <button class="filter-clear" id="travel-filter-clear" onclick="clearTravelFilters()" style="display:none">Clear filters</button>
+            <span class="filter-note" id="travel-filter-note"></span>
+          </div>
+
           <div id="travel-loading" class="loading-state">
             <div class="loading-spinner"></div>
             <p>Loading travel&hellip;</p>
           </div>
 
           <div id="travel-view-dashboard" class="travel-view active">
-            <div class="empty-state"><p>Dashboard lands in pass 3.</p></div>
+            <div style="padding:20px">
+              <div class="travel-stats-row" id="travel-stats"></div>
+            </div>
+
+            <div class="section-header">
+              <div>
+                <div class="section-title">Travel days by person</div>
+                <div class="section-sub">Calendar days on the road in the selected period, one row per person on the roster</div>
+              </div>
+              <div class="section-count" id="td-avg-chip">&ndash;</div>
+            </div>
+            <div class="td-list" id="td-list"></div>
+            <div class="td-legend" id="td-legend"></div>
+
+            <div class="section-header" style="border-top:var(--border)">
+              <div>
+                <div class="section-title">Needs a look</div>
+                <div class="section-sub">Conflicts and consolidation opportunities in the next 60 days, whatever the date filter says</div>
+              </div>
+              <div class="section-count" id="alerts-count">&ndash;</div>
+            </div>
+            <div id="travel-alerts"></div>
+
+            <div class="section-header" style="border-top:var(--border)">
+              <div>
+                <div class="section-title">Upcoming travel</div>
+                <div class="section-sub">Next 60 days, filtered by person, account and purpose</div>
+              </div>
+              <div class="section-count" id="upcoming-count">&ndash;</div>
+            </div>
+            <div id="travel-upcoming"></div>
+
+            <div class="section-header" style="border-top:var(--border)">
+              <div>
+                <div class="section-title">Account travel rollup</div>
+                <div class="section-sub">Active and inactive accounts, over the selected period</div>
+              </div>
+              <div class="section-count" id="rollup-count">&ndash;</div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Account</th>
+                    <th class="num">Trips</th>
+                    <th class="num">Travel days</th>
+                    <th class="num">People</th>
+                    <th>Last visit</th>
+                    <th>Cadence</th>
+                  </tr>
+                </thead>
+                <tbody id="rollup-tbody"></tbody>
+              </table>
+            </div>
+            <div class="table-foot">
+              Travel days are person-days: a 3-day trip with 2 attendees counts as 6. Accounts with Prospect or Complete status are excluded, matching the TAO filter convention. Last visit looks at all history, not just the selected period.
+            </div>
           </div>
           <div id="travel-view-calendar" class="travel-view">
             <div class="empty-state"><p>Calendar lands in pass 4.</p></div>
@@ -3960,21 +4187,286 @@ function setTravelView(view) {
   renderTravel();
 }
 
-// Pass 1 renders the shell only. Passes 2 to 4 fill each view in.
 function renderTravel() {
   const loading = document.getElementById('travel-loading');
   if (loading) loading.style.display = 'none';
+
+  populateTravelFilters();
+
+  const shown = filteredTrips().length;
+  const total = allTrips.length;
   const count = document.getElementById('travel-count');
   if (count) {
-    const n = allTrips.length;
-    count.textContent = n === 1 ? '1 trip' : n + ' trips';
+    count.textContent = shown === total
+      ? (total === 1 ? '1 trip' : total + ' trips')
+      : `${shown} of ${total} trips`;
   }
+
+  const note = document.getElementById('travel-filter-note');
+  if (note) {
+    const win = getTravelWindow();
+    note.textContent = win ? win.label : 'All dates';
+  }
+
+  const clear = document.getElementById('travel-filter-clear');
+  if (clear) clear.style.display = travelFiltersActive() ? 'inline' : 'none';
+
   renderTrips();
+  renderTravelDashboard();
 }
 
-// Trips visible in the table. Pass 3 swaps this for the filtered set.
+// ── TRAVEL FILTERS ──
+let travelDateMode = 'quarter';
+const TRAVEL_HORIZON_DAYS = 60;
+
+function isoDate(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function todayIso() { return isoDate(new Date()); }
+
+function addDaysIso(iso, n) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return isoDate(d);
+}
+
+// Returns { start, end, label } as ISO strings, or null for all time.
+function getTravelWindow() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const monthLabel = d => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const range = (a, b) => ({
+    start: isoDate(a),
+    end: isoDate(b),
+    label: `${a.getDate()} ${a.toLocaleDateString('en-US', { month: 'short' })} \u2013 ${b.getDate()} ${monthLabel(b)}`
+  });
+
+  switch (travelDateMode) {
+    case 'month':        return range(new Date(y, m, 1), new Date(y, m + 1, 0));
+    case 'next-month':   return range(new Date(y, m + 1, 1), new Date(y, m + 2, 0));
+    case 'quarter': {
+      const q = getQuarterBounds(0);
+      return range(q.startDate, q.endDate);
+    }
+    case 'next-quarter': {
+      const q = getQuarterBounds(1);
+      return range(q.startDate, q.endDate);
+    }
+    case 'ytd':          return range(new Date(y, 0, 1), now);
+    case 'all':          return null;
+    case 'custom': {
+      const s = document.getElementById('tr-custom-start')?.value;
+      const e = document.getElementById('tr-custom-end')?.value;
+      if (!s || !e) return null;
+      return range(new Date(s + 'T00:00:00'), new Date(e + 'T00:00:00'));
+    }
+    default:             return null;
+  }
+}
+
+const TRAVEL_DATE_LABELS = {
+  month: 'Current month', quarter: 'Current quarter',
+  'next-month': 'Next month', 'next-quarter': 'Next quarter',
+  ytd: 'Year to date', all: 'All time', custom: 'Custom range'
+};
+
+function setTravelDateMode(mode) {
+  travelDateMode = mode;
+  document.getElementById('tr-custom-range').classList.toggle('open', mode === 'custom');
+  const trigger = document.getElementById('fms-tr-date-trigger');
+  trigger.textContent = TRAVEL_DATE_LABELS[mode] || 'Date';
+  trigger.classList.toggle('active', mode !== 'quarter');
+  // The custom dropdown stays open until both dates are picked
+  if (mode !== 'custom') document.getElementById('fms-tr-date-dd').classList.remove('open');
+  renderTravel();
+}
+
+function onTravelCustomRangeChange() {
+  const s = document.getElementById('tr-custom-start').value;
+  const e = document.getElementById('tr-custom-end').value;
+  if (s && e) document.getElementById('fms-tr-date-dd').classList.remove('open');
+  renderTravel();
+}
+
+// onFilterMSChange labels the trigger with raw values, which would show uuids
+// for people and accounts. Same behaviour, names instead.
+function updateTravelFilterTrigger(ddId, triggerId, placeholder, labelFn) {
+  const values = getFilterMSValues(ddId);
+  const trigger = document.getElementById(triggerId);
+  if (!trigger) return;
+  if (!values.length) {
+    trigger.textContent = placeholder;
+    trigger.classList.remove('active');
+  } else if (values.length === 1) {
+    trigger.textContent = labelFn(values[0]);
+    trigger.classList.add('active');
+  } else {
+    trigger.textContent = values.length + ' selected';
+    trigger.classList.add('active');
+  }
+}
+
+function onTravelPersonChange() {
+  updateTravelFilterTrigger('fms-tr-person-dd', 'fms-tr-person-trigger', 'All people', personName);
+  renderTravel();
+}
+
+function onTravelAccountChange() {
+  updateTravelFilterTrigger('fms-tr-account-dd', 'fms-tr-account-trigger', 'All accounts',
+    id => id === '__internal__' ? 'Internal' : (allAccounts.find(a => a.id === id)?.account_name || 'Unknown'));
+  renderTravel();
+}
+
+function onTravelPurposeChange() {
+  onFilterMSChange('fms-tr-purpose-dd', 'fms-tr-purpose-trigger', 'All purposes');
+  renderTravel();
+}
+
+// Rebuilt whenever data reloads. Existing selections are preserved.
+function populateTravelFilters() {
+  const keep = {
+    person:  getFilterMSValues('fms-tr-person-dd'),
+    account: getFilterMSValues('fms-tr-account-dd'),
+    purpose: getFilterMSValues('fms-tr-purpose-dd')
+  };
+
+  const personDd = document.getElementById('fms-tr-person-dd');
+  if (personDd) {
+    const people = allPeople.filter(p => p.status === 'Active');
+    personDd.innerHTML = people.length
+      ? people.map(p => `<div class="filter-ms-option">
+          <input type="checkbox" id="fms-tr-p-${p.id}" value="${p.id}"${keep.person.includes(p.id) ? ' checked' : ''} onchange="onTravelPersonChange()">
+          <label for="fms-tr-p-${p.id}">${escHtml(p.full_name)}</label></div>`).join('')
+      : '<div class="ms-empty">No people in roster yet</div>';
+  }
+
+  const accountDd = document.getElementById('fms-tr-account-dd');
+  if (accountDd) {
+    const withTrips = new Set(allTrips.map(t => t.account_id).filter(Boolean));
+    const accounts = allAccounts.filter(a => withTrips.has(a.id))
+      .sort((a, b) => (a.account_name || '').localeCompare(b.account_name || ''));
+    const hasInternal = allTrips.some(t => !t.account_id);
+    accountDd.innerHTML =
+      accounts.map(a => `<div class="filter-ms-option">
+        <input type="checkbox" id="fms-tr-a-${a.id}" value="${a.id}"${keep.account.includes(a.id) ? ' checked' : ''} onchange="onTravelAccountChange()">
+        <label for="fms-tr-a-${a.id}">${escHtml(a.account_name)}</label></div>`).join('') +
+      (hasInternal ? `<div class="filter-ms-divider"></div>
+        <div class="filter-ms-option">
+          <input type="checkbox" id="fms-tr-a-internal" value="__internal__"${keep.account.includes('__internal__') ? ' checked' : ''} onchange="onTravelAccountChange()">
+          <label for="fms-tr-a-internal">No account (internal)</label></div>` : '') ||
+      '<div class="ms-empty">No trips logged yet</div>';
+  }
+
+  const purposeDd = document.getElementById('fms-tr-purpose-dd');
+  if (purposeDd) {
+    // Retired purposes still in the data stay filterable
+    const extra = [...new Set(allTrips.map(t => t.purpose).filter(p => p && !TRIP_PURPOSES.includes(p)))];
+    purposeDd.innerHTML = TRIP_PURPOSES.concat(extra).map((p, i) => `<div class="filter-ms-option">
+      <input type="checkbox" id="fms-tr-u-${i}" value="${escHtml(p)}"${keep.purpose.includes(p) ? ' checked' : ''} onchange="onTravelPurposeChange()">
+      <label for="fms-tr-u-${i}">${escHtml(p)}</label></div>`).join('');
+  }
+
+  updateTravelFilterTrigger('fms-tr-person-dd', 'fms-tr-person-trigger', 'All people', personName);
+  updateTravelFilterTrigger('fms-tr-account-dd', 'fms-tr-account-trigger', 'All accounts',
+    id => id === '__internal__' ? 'Internal' : (allAccounts.find(a => a.id === id)?.account_name || 'Unknown'));
+  onFilterMSChange('fms-tr-purpose-dd', 'fms-tr-purpose-trigger', 'All purposes');
+}
+
+function travelFiltersActive() {
+  return getFilterMSValues('fms-tr-person-dd').length > 0
+    || getFilterMSValues('fms-tr-account-dd').length > 0
+    || getFilterMSValues('fms-tr-purpose-dd').length > 0
+    || travelDateMode !== 'quarter';
+}
+
+function clearTravelFilters() {
+  ['fms-tr-person-dd', 'fms-tr-account-dd', 'fms-tr-purpose-dd'].forEach(id => {
+    document.querySelectorAll('#' + id + ' input[type=checkbox]').forEach(cb => { cb.checked = false; });
+  });
+  document.getElementById('tr-date-quarter').checked = true;
+  document.getElementById('tr-custom-start').value = '';
+  document.getElementById('tr-custom-end').value = '';
+  setTravelDateMode('quarter');
+  populateTravelFilters();
+  renderTravel();
+}
+
+// AND across categories, OR within one. usePerson and useDate let the
+// 60-day sections opt out of the date window without duplicating this.
+function filterTripsBy(opts) {
+  const usePerson = opts?.usePerson !== false;
+  const useDate   = opts?.useDate   !== false;
+  const people   = getFilterMSValues('fms-tr-person-dd');
+  const accounts = getFilterMSValues('fms-tr-account-dd');
+  const purposes = getFilterMSValues('fms-tr-purpose-dd');
+  const win = useDate ? getTravelWindow() : null;
+
+  return allTrips.filter(t => {
+    // Range intersection, not "starts inside the window"
+    if (win && !(t.start_date <= win.end && t.end_date >= win.start)) return false;
+    if (accounts.length && !accounts.includes(t.account_id || '__internal__')) return false;
+    if (purposes.length && !purposes.includes(t.purpose)) return false;
+    if (usePerson && people.length) {
+      const ids = tripAttendeesFor(t.id).map(a => a.person_id);
+      if (!ids.some(id => people.includes(id))) return false;
+    }
+    return true;
+  });
+}
+
+function filteredTrips() { return filterTripsBy(); }
+function notCancelled(trips) { return trips.filter(t => t.status !== 'Cancelled'); }
+
+// The trips table is the system of record, so cancelled rows stay visible.
 function tripsForTable() {
-  return allTrips.slice();
+  return filteredTrips();
+}
+
+// Forward-looking sections use a fixed horizon regardless of the date filter.
+function horizonTrips() {
+  const from = todayIso();
+  const to = addDaysIso(from, TRAVEL_HORIZON_DAYS);
+  return notCancelled(filterTripsBy({ useDate: false }))
+    .filter(t => t.start_date <= to && t.end_date >= from);
+}
+
+function personDayTotals(trips) {
+  const totals = {};
+  trips.forEach(t => {
+    tripAttendeesFor(t.id).forEach(a => {
+      if (!totals[a.person_id]) totals[a.person_id] = { days: 0, trips: 0 };
+      totals[a.person_id].days += attendeeDays(a, t);
+      totals[a.person_id].trips += 1;
+    });
+  });
+  return totals;
+}
+
+function tripPersonDays(trip) {
+  return tripAttendeesFor(trip.id).reduce((sum, a) => sum + attendeeDays(a, trip), 0);
+}
+
+function placeKey(t) {
+  if (t.place_id) return t.place_id;
+  if (t.city && t.country_code) return (t.city + '|' + t.country_code).toLowerCase();
+  return (t.location_label || '').trim().toLowerCase();
+}
+
+function attendeeRange(a, t) {
+  return { start: a.start_date || t.start_date, end: a.end_date || t.end_date };
+}
+
+function rangesOverlap(a, b) {
+  return a.start <= b.end && b.start <= a.end;
+}
+
+function daysApart(isoA, isoB) {
+  return Math.abs(Math.round(
+    (new Date(isoB + 'T00:00:00') - new Date(isoA + 'T00:00:00')) / 86400000));
 }
 
 function tripPlaceLabel(trip) {
@@ -4065,6 +4557,338 @@ function renderTripsTable(trips) {
       <td class="trip-attendees-cell">${escHtml(who)}</td>
       <td><span class="trip-badge ${tripStatusToClass(t.status)}">${escHtml(t.status) || 'Planned'}</span></td>
       <td style="font-size:11px;color:#9CA3AF">${escHtml(t.logged_by) || '\u2013'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── TRAVEL DASHBOARD ──
+function renderTravelDashboard() {
+  renderTravelStats();
+  renderTravelDaysByPerson();
+  renderTravelAlerts();
+  renderUpcomingTravel();
+  renderAccountRollup();
+}
+
+function renderTravelStats() {
+  const el = document.getElementById('travel-stats');
+  if (!el) return;
+  const trips = notCancelled(filteredTrips());
+  const days = trips.reduce((sum, t) => sum + tripPersonDays(t), 0);
+  const cities = new Set(trips.map(t => (t.city || t.location_label || '').trim().toLowerCase()).filter(Boolean));
+  const countries = new Set(trips.map(t => (t.country_code || t.country || '').trim().toLowerCase()).filter(Boolean));
+  const upcoming = horizonTrips().length;
+
+  el.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Trips</div>
+      <div class="stat-value">${trips.length}</div>
+      <div class="stat-sub">${upcoming} upcoming in the next 60 days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Travel days</div>
+      <div class="stat-value cyan">${days}</div>
+      <div class="stat-sub">Person-days, calendar count</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cities</div>
+      <div class="stat-value green">${cities.size}</div>
+      <div class="stat-sub">${countries.size ? 'Across ' + countries.size + (countries.size === 1 ? ' country' : ' countries') : 'No country data yet'}</div>
+    </div>`;
+}
+
+function renderTravelDaysByPerson() {
+  const list = document.getElementById('td-list');
+  const legend = document.getElementById('td-legend');
+  if (!list) return;
+
+  const activePeople = allPeople.filter(p => p.status === 'Active');
+  const selected = getFilterMSValues('fms-tr-person-dd');
+  const shown = selected.length ? activePeople.filter(p => selected.includes(p.id)) : activePeople;
+
+  const totals = personDayTotals(notCancelled(filteredTrips()));
+  // The average always spans the whole roster, so filtering to one person
+  // shows where they sit against the team rather than against themselves.
+  const teamTotals = personDayTotals(notCancelled(filterTripsBy({ usePerson: false })));
+  const teamDays = activePeople.reduce((sum, p) => sum + (teamTotals[p.id]?.days || 0), 0);
+  const avg = activePeople.length ? teamDays / activePeople.length : 0;
+
+  if (!shown.length) {
+    list.innerHTML = '<div class="empty-state"><p>No active people on the roster.</p></div>';
+    legend.innerHTML = '';
+    document.getElementById('td-avg-chip').textContent = '\u2013';
+    return;
+  }
+
+  const rows = shown.map(p => ({
+    person: p,
+    days: totals[p.id]?.days || 0,
+    trips: totals[p.id]?.trips || 0
+  })).sort((a, b) => b.days - a.days);
+
+  const max = Math.max(...rows.map(r => r.days), 1);
+  const avgPct = Math.min(100, Math.max(0, (avg / max) * 100));
+
+  list.innerHTML = rows.map(r => {
+    const pct = r.days ? Math.max(3, (r.days / max) * 100) : 1.5;
+    const cls = r.days === 0 ? 'zero' : (r.days > avg ? 'over' : '');
+    return `<div class="td-row">
+      <div>
+        <div class="td-name">${escHtml(r.person.full_name)}</div>
+        <div class="td-role">${escHtml(r.person.role) || '\u2013'}</div>
+      </div>
+      <div class="td-track">
+        <div class="td-fill ${cls}" style="width:${pct.toFixed(1)}%"></div>
+        <div class="td-avg" style="left:${avgPct.toFixed(1)}%"></div>
+      </div>
+      <div class="td-figures">${r.days} d<div class="td-trips">${r.trips === 0 ? 'no trips' : r.trips + (r.trips === 1 ? ' trip' : ' trips')}</div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('td-avg-chip').textContent = 'team avg ' + avg.toFixed(1);
+  legend.innerHTML = `
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--cyan)"></span> Above team average</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--green)"></span> At or below average</div>
+    <div class="legend-item"><span class="legend-rule"></span> Team average (${avg.toFixed(1)} days)</div>
+    <div class="legend-item" style="margin-left:auto">Bars scale to the highest person in view (${max} days)</div>`;
+}
+
+// Four checks over the next 60 days. One alert per group, never one per pair.
+function buildTravelAlerts() {
+  const trips = horizonTrips();
+  const byId = {};
+  trips.forEach(t => { byId[t.id] = t; });
+  const alerts = [];
+
+  const tripLabel = t => (tripPlaceLabel(t) || 'Unknown place');
+  const tripLine = t => `<b>${escHtml(tripLabel(t))}</b> ${escHtml(formatTripDates(t))}${t.title ? ' (' + escHtml(t.title) + ')' : ''}`;
+
+  // 1 and 2: same person on overlapping trips
+  const byPerson = {};
+  trips.forEach(t => {
+    tripAttendeesFor(t.id).forEach(a => {
+      (byPerson[a.person_id] = byPerson[a.person_id] || []).push({ trip: t, range: attendeeRange(a, t) });
+    });
+  });
+
+  Object.keys(byPerson).forEach(pid => {
+    const entries = byPerson[pid];
+    const clash = new Set(), dupe = new Set();
+    for (let i = 0; i < entries.length; i++) {
+      for (let j = i + 1; j < entries.length; j++) {
+        if (!rangesOverlap(entries[i].range, entries[j].range)) continue;
+        const samePlace = placeKey(entries[i].trip) === placeKey(entries[j].trip);
+        (samePlace ? dupe : clash).add(entries[i].trip.id);
+        (samePlace ? dupe : clash).add(entries[j].trip.id);
+      }
+    }
+    if (clash.size) {
+      alerts.push({
+        sev: 'conflict', chip: 'Conflict',
+        headline: `${personName(pid)} is booked in two places at once`,
+        detail: [...clash].map(id => tripLine(byId[id])).join(' overlaps ')
+      });
+    }
+    if (dupe.size) {
+      alerts.push({
+        sev: 'duplicate', chip: 'Possible duplicate',
+        headline: `${personName(pid)} has two overlapping trips to the same place`,
+        detail: [...dupe].map(id => tripLine(byId[id])).join(' and ') + '. Probably one trip logged twice.'
+      });
+    }
+  });
+
+  // 3: two or more separate trips to the same place, overlapping or within 2 days
+  const byPlace = {};
+  trips.forEach(t => {
+    const k = placeKey(t);
+    if (k) (byPlace[k] = byPlace[k] || []).push(t);
+  });
+  Object.values(byPlace).forEach(group => {
+    if (group.length < 2) return;
+    const near = new Set();
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        const a = group[i], b = group[j];
+        const overlap = rangesOverlap({ start: a.start_date, end: a.end_date }, { start: b.start_date, end: b.end_date });
+        const adjacent = daysApart(a.end_date, b.start_date) <= 2 || daysApart(b.end_date, a.start_date) <= 2;
+        if (overlap || adjacent) { near.add(a.id); near.add(b.id); }
+      }
+    }
+    if (near.size >= 2) {
+      const involved = [...near].map(id => byId[id]);
+      alerts.push({
+        sev: 'overlap', chip: 'Same place',
+        headline: `${involved.length} separate trips to ${tripLabel(involved[0])} in the same week`,
+        detail: involved.map(t => {
+          const who = tripAttendeesFor(t.id).map(a => personName(a.person_id)).join(', ');
+          return `<b>${escHtml(who || 'Nobody assigned')}</b> ${escHtml(formatTripDates(t))}`;
+        }).join(' and ') + '. Worth a conversation before someone books a second flight.'
+      });
+    }
+  });
+
+  // 4: two or more trips to one account starting within 30 days of each other
+  const byAccount = {};
+  trips.forEach(t => { if (t.account_id) (byAccount[t.account_id] = byAccount[t.account_id] || []).push(t); });
+  Object.keys(byAccount).forEach(accId => {
+    const group = byAccount[accId];
+    if (group.length < 2) return;
+    const near = new Set();
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        if (daysApart(group[i].start_date, group[j].start_date) <= 30) { near.add(group[i].id); near.add(group[j].id); }
+      }
+    }
+    if (near.size >= 2) {
+      const involved = [...near].map(id => byId[id]).sort((a, b) => a.start_date.localeCompare(b.start_date));
+      const name = allAccounts.find(a => a.id === accId)?.account_name || 'this account';
+      alerts.push({
+        sev: 'consolidate', chip: 'Consolidate',
+        headline: `${involved.length} ${name} trips inside 30 days`,
+        detail: involved.map(t => {
+          const who = tripAttendeesFor(t.id).map(a => personName(a.person_id)).join(', ');
+          return `<b>${escHtml(who || 'Nobody assigned')}</b> ${escHtml(formatTripDates(t))}`;
+        }).join(', ') + '. Could any of these travel together?'
+      });
+    }
+  });
+
+  const order = { conflict: 0, duplicate: 1, overlap: 2, consolidate: 3 };
+  return alerts.sort((a, b) => order[a.sev] - order[b.sev]);
+}
+
+function renderTravelAlerts() {
+  const el = document.getElementById('travel-alerts');
+  if (!el) return;
+  const alerts = buildTravelAlerts();
+  document.getElementById('alerts-count').textContent =
+    alerts.length ? alerts.length + (alerts.length === 1 ? ' flag' : ' flags') : 'all clear';
+
+  if (!alerts.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:28px 20px"><p>Nothing needs attention in the next 60 days.</p></div>';
+    return;
+  }
+
+  el.innerHTML = alerts.map(a => `<div class="alert-row sev-${a.sev}">
+    <span class="alert-chip chip-${a.sev}">${a.chip}</span>
+    <div class="alert-body">
+      <div class="alert-headline">${escHtml(a.headline)}</div>
+      <div class="alert-detail">${a.detail}</div>
+    </div>
+  </div>`).join('');
+}
+
+function renderUpcomingTravel() {
+  const el = document.getElementById('travel-upcoming');
+  if (!el) return;
+  const trips = horizonTrips().sort((a, b) => a.start_date.localeCompare(b.start_date));
+  const days = trips.reduce((sum, t) => sum + tripPersonDays(t), 0);
+  document.getElementById('upcoming-count').textContent =
+    trips.length ? `${trips.length} ${trips.length === 1 ? 'trip' : 'trips'} \u00b7 ${days} days` : 'none';
+
+  if (!trips.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:28px 20px"><p>No trips booked in the next 60 days.</p></div>';
+    return;
+  }
+
+  const now = new Date();
+  const thisKey = now.getFullYear() + '-' + now.getMonth();
+  const nextKey = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const nextKeyStr = nextKey.getFullYear() + '-' + nextKey.getMonth();
+
+  const groups = {};
+  trips.forEach(t => {
+    const d = new Date(t.start_date + 'T00:00:00');
+    const key = d.getFullYear() + '-' + d.getMonth();
+    (groups[key] = groups[key] || { date: d, trips: [] }).trips.push(t);
+  });
+
+  el.innerHTML = Object.keys(groups).map(key => {
+    const g = groups[key];
+    const month = g.date.toLocaleDateString('en-US', { month: 'long' });
+    let label;
+    if (key === thisKey) label = 'This month \u00b7 ' + month;
+    else if (key === nextKeyStr) label = 'Next month \u00b7 ' + month;
+    else label = month + ' ' + g.date.getFullYear();
+
+    return `<div class="upcoming-group-label">${label}</div>` + g.trips.map(t => {
+      const who = tripAttendeesFor(t.id).map(a => personName(a.person_id)).join(', ');
+      const account = t.accounts?.account_name || 'Internal';
+      const sub = account + (t.title ? ' \u00b7 ' + t.title : '');
+      return `<div class="up-row" onclick="openTripForm('${t.id}')">
+        <div><div class="up-dates">${escHtml(formatTripDates(t))}</div><div class="up-days">${tripDays(t)} days</div></div>
+        <div><div class="up-where">${escHtml(tripPlaceLabel(t)) || '\u2013'}</div><div class="up-purpose">${escHtml(sub)}</div></div>
+        <div class="up-who">${escHtml(who) || '\u2013'}</div>
+        <div><span class="trip-badge ${purposeToClass(t.purpose)}">${escHtml(t.purpose) || '\u2013'}</span></div>
+      </div>`;
+    }).join('');
+  }).join('');
+}
+
+function renderAccountRollup() {
+  const tbody = document.getElementById('rollup-tbody');
+  if (!tbody) return;
+
+  const selectedAccounts = getFilterMSValues('fms-tr-account-dd');
+  const eligible = allAccounts
+    .filter(a => a.status === 'Active' || a.status === 'Inactive')
+    .filter(a => !selectedAccounts.length || selectedAccounts.includes(a.id));
+
+  const windowed = notCancelled(filteredTrips());
+  const today = todayIso();
+
+  const rows = eligible.map(acc => {
+    const trips = windowed.filter(t => t.account_id === acc.id);
+    const days = trips.reduce((sum, t) => sum + tripPersonDays(t), 0);
+    const people = new Set();
+    trips.forEach(t => tripAttendeesFor(t.id).forEach(a => people.add(a.person_id)));
+
+    // Last visit looks at all history, not the selected window, otherwise
+    // filtering to a future quarter would claim we have never been.
+    const past = allTrips.filter(t =>
+      t.account_id === acc.id && t.status !== 'Cancelled' && t.end_date < today);
+    const lastVisit = past.length ? past.map(t => t.end_date).sort().pop() : null;
+
+    return {
+      acc, trips: trips.length, days, people: people.size, lastVisit,
+      daysSince: lastVisit ? daysApart(lastVisit, today) : null,
+      everVisited: allTrips.some(t => t.account_id === acc.id && t.status !== 'Cancelled')
+    };
+  }).sort((a, b) => {
+    if (!a.everVisited && b.everVisited) return 1;
+    if (a.everVisited && !b.everVisited) return -1;
+    return b.days - a.days;
+  });
+
+  document.getElementById('rollup-count').textContent =
+    rows.length + (rows.length === 1 ? ' account' : ' accounts');
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No active or inactive accounts.</p></div></td></tr>';
+    return;
+  }
+
+  const maxDays = Math.max(...rows.map(r => r.days), 1);
+
+  tbody.innerHTML = rows.map(r => {
+    let badge;
+    if (!r.everVisited) badge = '<span class="never-badge">Never visited</span>';
+    else if (r.daysSince === null) badge = '<span class="ok-badge">Upcoming only</span>';
+    else if (r.daysSince > 90) badge = `<span class="stale-badge">${r.daysSince} days ago</span>`;
+    else badge = `<span class="ok-badge">${r.daysSince} days ago</span>`;
+
+    const bar = r.days
+      ? `<span class="mini-bar-wrap"><span class="mini-bar" style="width:${((r.days / maxDays) * 100).toFixed(0)}%"></span></span>`
+      : '';
+
+    return `<tr>
+      <td style="font-weight:500">${escHtml(r.acc.account_name)}</td>
+      <td class="num cell-mono">${r.trips}</td>
+      <td class="num cell-mono">${bar}${r.days}</td>
+      <td class="num cell-mono">${r.people}</td>
+      <td class="cell-mono"${r.lastVisit ? '' : ' style="color:#9CA3AF"'}>${r.lastVisit ? escHtml(formatDate(r.lastVisit)) : '\u2013'}</td>
+      <td>${badge}</td>
     </tr>`;
   }).join('');
 }
