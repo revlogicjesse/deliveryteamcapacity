@@ -1419,6 +1419,27 @@
   }
 
 
+  /* ── TRAVEL ── */
+  .travel-view { display: none; }
+  .travel-view.active { display: block; }
+
+  .travel-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .travel-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  @media (max-width: 1120px) {
+    .travel-stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
   .detail-page { display: none; animation: fadeIn 0.2s ease; }
   .detail-page.active { display: block; }
 
@@ -1747,6 +1768,10 @@
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A1.5 1.5 0 012.5 1h11A1.5 1.5 0 0115 2.5v9A1.5 1.5 0 0113.5 13H9.914l1.793 1.793a.5.5 0 01-.707.707L8.5 13.914l-2.5 2.086a.5.5 0 01-.707-.707L7.086 13H2.5A1.5 1.5 0 011 11.5v-9zM2.5 2a.5.5 0 00-.5.5v9a.5.5 0 00.5.5h11a.5.5 0 00.5-.5v-9a.5.5 0 00-.5-.5h-11z"/></svg>
         Engagements
       </div>
+      <div class="nav-item" data-page="travel" onclick="navTo('travel', this)">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.428 1.151C6.708.591 7.213 0 8 0s1.292.591 1.572 1.151C9.861 1.73 10 2.431 10 3v3.691l5.17 2.585a1.5 1.5 0 01.83 1.342V12a.5.5 0 01-.582.493l-5.507-.918-.375 2.253 1.318 1.318A.5.5 0 0110.5 16h-5a.5.5 0 01-.354-.854l1.319-1.318-.376-2.253-5.507.918A.5.5 0 010 12v-1.382a1.5 1.5 0 01.83-1.342L6 6.691V3c0-.568.14-1.271.428-1.849z"/></svg>
+        Travel
+      </div>
       <div class="nav-item" data-page="people" onclick="navTo('people', this)">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 100-6 3 3 0 000 6zm-5.784 6A2.238 2.238 0 015 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 005 9c-4 0-5 3-5 4s1 1 1 1h4.216zM4.5 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
         People
@@ -2003,6 +2028,41 @@
       </div>
 
       <!-- PEOPLE PAGE -->
+      <div class="page" id="page-travel">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Travel</div>
+            <div class="travel-toggle-wrap">
+              <div class="section-count" id="travel-count">&ndash;</div>
+              <div class="view-toggle">
+                <button class="view-toggle-btn active" id="toggle-travel-dashboard" onclick="setTravelView('dashboard')">Dashboard</button>
+                <button class="view-toggle-btn" id="toggle-travel-calendar" onclick="setTravelView('calendar')">Calendar</button>
+                <button class="view-toggle-btn" id="toggle-travel-map" onclick="setTravelView('map')">Map</button>
+                <button class="view-toggle-btn" id="toggle-travel-trips" onclick="setTravelView('trips')">Trips</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="travel-loading" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading travel&hellip;</p>
+          </div>
+
+          <div id="travel-view-dashboard" class="travel-view active">
+            <div class="empty-state"><p>Dashboard lands in pass 3.</p></div>
+          </div>
+          <div id="travel-view-calendar" class="travel-view">
+            <div class="empty-state"><p>Calendar lands in pass 4.</p></div>
+          </div>
+          <div id="travel-view-map" class="travel-view">
+            <div class="empty-state"><p>Map lands in pass 4.</p></div>
+          </div>
+          <div id="travel-view-trips" class="travel-view">
+            <div class="empty-state"><p>Trips table lands in pass 2.</p></div>
+          </div>
+        </div>
+      </div>
+
       <div class="page" id="page-people">
         <div class="section-card">
           <div class="section-header">
@@ -2522,6 +2582,7 @@
 <script>
 const SUPABASE_URL = 'https://qjmywacxiolnhtnwqxyt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__lKVBWUmiokZgs8Gigi9tA_HZJfcUu7';
+const GOOGLE_MAPS_KEY = 'REPLACE_WITH_GOOGLE_MAPS_KEY';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -2531,6 +2592,8 @@ let allEngagements = [];
 let allPeople = [];
 let allAssignments = [];
 let allWhitespace = [];
+let allTrips = [];
+let allTripAttendees = [];
 
 // ── AUTH ──
 async function signInWithGoogle() {
@@ -2612,7 +2675,9 @@ async function loadAllData() {
     loadAccounts(),
     loadEngagements(),
     loadAssignments(),
-    loadWhitespace()
+    loadWhitespace(),
+    loadTrips(),
+    loadTripAttendees()
   ];
   dataLoads.push(loadPeople());
   await Promise.all(dataLoads);
@@ -2678,6 +2743,20 @@ async function loadWhitespace() {
   if (error) return;
   allWhitespace = data || [];
   updateStats();
+}
+
+async function loadTrips() {
+  const { data, error } = await db.from('trips').select('*, accounts(account_name)').order('start_date', { ascending: false });
+  if (error) { showToast('Error loading trips: ' + error.message); return; }
+  allTrips = data || [];
+  renderTravel();
+}
+
+async function loadTripAttendees() {
+  const { data, error } = await db.from('trip_attendees').select('*');
+  if (error) { showToast('Error loading trip attendees: ' + error.message); return; }
+  allTripAttendees = data || [];
+  renderTravel();
 }
 
 // ── STATS ──
@@ -3653,6 +3732,48 @@ function renderPeople() {
   renderPeopleData(sortData([...allPeople], s.col, s.dir));
 }
 
+// ── TRAVEL ──
+let currentTravelView = 'dashboard';
+
+function setTravelView(view) {
+  currentTravelView = view;
+  ['dashboard','calendar','map','trips'].forEach(v => {
+    document.getElementById('toggle-travel-' + v).classList.toggle('active', v === view);
+    document.getElementById('travel-view-' + v).classList.toggle('active', v === view);
+  });
+  renderTravel();
+}
+
+// Pass 1 renders the shell only. Passes 2 to 4 fill each view in.
+function renderTravel() {
+  const loading = document.getElementById('travel-loading');
+  if (loading) loading.style.display = 'none';
+  const count = document.getElementById('travel-count');
+  if (count) {
+    const n = allTrips.length;
+    count.textContent = n === 1 ? '1 trip' : n + ' trips';
+  }
+}
+
+// Travel days are always derived, never stored.
+function daysInclusive(startStr, endStr) {
+  if (!startStr || !endStr) return 0;
+  const start = new Date(startStr + 'T00:00:00');
+  const end = new Date(endStr + 'T00:00:00');
+  return Math.round((end - start) / 86400000) + 1;
+}
+
+function tripDays(trip) {
+  return daysInclusive(trip.start_date, trip.end_date);
+}
+
+function attendeeDays(attendee, trip) {
+  return daysInclusive(
+    attendee.start_date || trip.start_date,
+    attendee.end_date   || trip.end_date
+  );
+}
+
 // ── SORT ENGINE ──
 const sortState = {
   accounts:    { col: 'account_name', dir: 'asc' },
@@ -3727,9 +3848,15 @@ function sortData(arr, col, dir, keyFnOrField) {
       av = a[col] ?? ''; bv = b[col] ?? '';
     }
     // Numeric sort for numeric fields
-    const numericCols = ['arr','total_contract_value','contract_value','max_slots'];
+    const numericCols = ['arr','total_contract_value','contract_value','max_slots','days'];
+    // Date columns sort chronologically, not as strings (parseFloat would read
+    // '2026-09-15' as 2026 and collapse every trip in a year onto one value)
+    const dateCols = ['start_date','end_date','target_end_date'];
     if (numericCols.includes(col)) {
       av = parseFloat(av) || 0; bv = parseFloat(bv) || 0;
+    } else if (dateCols.includes(col)) {
+      av = av ? new Date(av).getTime() : 0;
+      bv = bv ? new Date(bv).getTime() : 0;
     } else {
       av = String(av).toLowerCase(); bv = String(bv).toLowerCase();
     }
@@ -3818,7 +3945,7 @@ function navTo(page, el) {
   el.classList.add('active');
   document.getElementById('page-' + page).classList.add('active');
 
-  const titles = { capacity: 'Capacity Overview', accounts: 'Accounts', engagements: 'Engagements', people: 'People & Roster' };
+  const titles = { capacity: 'Capacity Overview', accounts: 'Accounts', engagements: 'Engagements', travel: 'Travel', people: 'People & Roster' };
   document.getElementById('topbar-title').textContent = titles[page] || page;
 }
 
@@ -3935,6 +4062,9 @@ const REV_PROGRAMS = [
 const ENGAGEMENT_PHASES = ['Scoping','Build','Active delivery','Maintenance / embedding','Wind-down','On Hold / Cancelled','Complete'];
 const ENGAGEMENT_SCOPES = ['Heavy 1.5','Standard 1.0','Light 0.5'];
 const WS_STATUSES = ['Purchased','Active pipeline','Potential','Not needed','Unknown'];
+
+const TRIP_PURPOSES = ['Client session','Kickoff','QBR / exec review','Discovery','Conference / event','Internal / offsite','Other'];
+const TRIP_STATUSES = ['Planned','Confirmed','Completed','Cancelled'];
 
 let editingPersonId = null;
 let editingAccountId = null;
