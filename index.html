@@ -1440,6 +1440,67 @@
     .travel-stats-row { grid-template-columns: repeat(2, 1fr); }
   }
 
+  .trip-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    display: inline-block;
+  }
+  /* Status */
+  .ts-planned   { background: #F3F4F6; color: #6B7280; }
+  .ts-confirmed { background: var(--light-green); color: var(--treasury); }
+  .ts-completed { background: #DCF2F2; color: var(--cyan); }
+  .ts-cancelled { background: #FEE2E2; color: #991B1B; }
+  /* Purpose */
+  .tp-session   { background: var(--light-green); color: var(--treasury); }
+  .tp-kickoff   { background: #EDE9FE; color: #5B21B6; }
+  .tp-qbr       { background: #DBEAFE; color: #1E40AF; }
+  .tp-discovery { background: #E0F2FE; color: #075985; }
+  .tp-conf      { background: #FEF3C7; color: #92400E; }
+  .tp-internal  { background: #F3F4F6; color: #6B7280; }
+  .tp-other     { background: #F3F4F6; color: #6B7280; }
+
+  tr.trip-cancelled td { opacity: 0.55; }
+
+  .trip-dates-cell {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .trip-attendees-cell {
+    font-size: 12px;
+    color: #6B7280;
+    max-width: 240px;
+  }
+
+  .tf-toggle-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--cyan);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .tf-toggle-link:hover { color: var(--dark); }
+
+  .tf-override-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 140px;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: var(--border);
+  }
+  .tf-override-row:last-child { border-bottom: none; }
+  .tf-override-name { font-size: 13px; color: var(--dark); }
+  .tf-override-empty { font-size: 12px; color: #9CA3AF; padding: 8px 0; }
+
   .detail-page { display: none; animation: fadeIn 0.2s ease; }
   .detail-page.active { display: block; }
 
@@ -2040,6 +2101,10 @@
                 <button class="view-toggle-btn" id="toggle-travel-map" onclick="setTravelView('map')">Map</button>
                 <button class="view-toggle-btn" id="toggle-travel-trips" onclick="setTravelView('trips')">Trips</button>
               </div>
+              <button class="btn-primary" onclick="openTripForm()">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a.5.5 0 01.5.5v5h5a.5.5 0 010 1h-5v5a.5.5 0 01-1 0v-5h-5a.5.5 0 010-1h5v-5A.5.5 0 018 2z"/></svg>
+                Add trip
+              </button>
             </div>
           </div>
 
@@ -2058,7 +2123,24 @@
             <div class="empty-state"><p>Map lands in pass 4.</p></div>
           </div>
           <div id="travel-view-trips" class="travel-view">
-            <div class="empty-state"><p>Trips table lands in pass 2.</p></div>
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="sortable" onclick="sortTable('trips','start_date')">Dates <span class="sort-icon">&darr;</span></th>
+                    <th class="sortable" onclick="sortTable('trips','days')">Days <span class="sort-icon">&#8597;</span></th>
+                    <th class="sortable" onclick="sortTable('trips','place')">Place <span class="sort-icon">&#8597;</span></th>
+                    <th class="sortable" onclick="sortTable('trips','country')">Country <span class="sort-icon">&#8597;</span></th>
+                    <th class="sortable" onclick="sortTable('trips','account')">Account <span class="sort-icon">&#8597;</span></th>
+                    <th class="sortable" onclick="sortTable('trips','purpose')">Purpose <span class="sort-icon">&#8597;</span></th>
+                    <th>Attendees</th>
+                    <th class="sortable" onclick="sortTable('trips','status')">Status <span class="sort-icon">&#8597;</span></th>
+                    <th class="sortable" onclick="sortTable('trips','logged_by')">Logged by <span class="sort-icon">&#8597;</span></th>
+                  </tr>
+                </thead>
+                <tbody id="trips-tbody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -2374,6 +2456,139 @@
       <button class="btn-danger" id="engagement-delete-btn" onclick="deleteEngagementFromModal()" style="margin-right:auto;display:none">Delete engagement</button>
       <button class="btn-secondary" onclick="closeEngagementForm()">Cancel</button>
       <button class="btn-primary" id="engagement-save-btn" onclick="saveEngagement()">Save engagement</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- TRIP FORM MODAL -->
+<div class="modal-overlay" id="trip-modal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="trip-modal-title">Add trip</div>
+        <div id="trip-modal-sub" style="font-size:12px;color:#6B7280;margin-top:2px"></div>
+      </div>
+      <button class="modal-close" onclick="closeTripForm()">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section-label">Where and when</div>
+      <div class="form-grid thirds" style="margin-bottom:8px">
+        <div class="form-field span-3">
+          <label class="form-label">Location *</label>
+          <div id="tf-location-wrap">
+            <input class="form-input" id="tf-location_label" placeholder="Berlin, Germany">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Start date *</label>
+          <input class="form-input" id="tf-start_date" type="date" onchange="updateTripDaysPreview()">
+        </div>
+        <div class="form-field">
+          <label class="form-label">End date *</label>
+          <input class="form-input" id="tf-end_date" type="date" onchange="updateTripDaysPreview()">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Trip days</label>
+          <input class="form-input" id="tf-days-preview" disabled value="&ndash;">
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <button type="button" class="tf-toggle-link" onclick="toggleManualCoords()" id="tf-coords-link">Enter coordinates manually</button>
+        <div id="tf-coords-wrap" style="display:none;margin-top:10px">
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">Latitude</label>
+              <input class="form-input" id="tf-lat" placeholder="52.520008">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Longitude</label>
+              <input class="form-input" id="tf-lng" placeholder="13.404954">
+            </div>
+            <div class="form-field">
+              <label class="form-label">City</label>
+              <input class="form-input" id="tf-city" placeholder="Berlin">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Country</label>
+              <input class="form-input" id="tf-country" placeholder="Germany">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Region / state</label>
+              <input class="form-input" id="tf-region" placeholder="Berlin">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Country code</label>
+              <input class="form-input" id="tf-country_code" placeholder="DE" maxlength="2">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section-label">What and why</div>
+      <div class="form-grid thirds" style="margin-bottom:24px">
+        <div class="form-field">
+          <label class="form-label">Account</label>
+          <select class="form-select" id="tf-account_id" onchange="onTripAccountChange()">
+            <option value="">No account (internal)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Engagement</label>
+          <select class="form-select" id="tf-engagement_id">
+            <option value="">None</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Purpose *</label>
+          <select class="form-select" id="tf-purpose">
+            <option value="">Select...</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="tf-status"></select>
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Title</label>
+          <input class="form-input" id="tf-title" placeholder="Parloa cohort 3 kickoff">
+        </div>
+        <div class="form-field span-3">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="tf-notes" placeholder="Trip notes..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-section-label">Who went</div>
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="form-field span-2">
+          <label class="form-label">Attendees *</label>
+          <div class="ms-wrap">
+            <button type="button" class="ms-trigger" id="tf-att-trigger" onclick="toggleMS('tf-att-dd', this)">Select attendees...</button>
+            <div class="ms-dropdown" id="tf-att-dd" onchange="onTripAttendeeChange()">
+              <div id="tf-attendee-checkboxes"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:8px">
+        <button type="button" class="tf-toggle-link" onclick="toggleAttendeeOverrides()" id="tf-override-link">Different dates for someone?</button>
+        <div id="tf-override-wrap" style="display:none;margin-top:10px">
+          <div id="tf-override-rows"></div>
+          <div style="font-size:11px;color:#9CA3AF;margin-top:8px">Leave a row blank to use the trip dates.</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="trip-delete-btn" onclick="deleteTripFromModal()" style="margin-right:auto;display:none">Delete trip</button>
+      <button class="btn-secondary" onclick="closeTripForm()">Cancel</button>
+      <button class="btn-primary" id="trip-save-btn" onclick="saveTrip()">Save trip</button>
     </div>
   </div>
 </div>
@@ -3753,6 +3968,404 @@ function renderTravel() {
     const n = allTrips.length;
     count.textContent = n === 1 ? '1 trip' : n + ' trips';
   }
+  renderTrips();
+}
+
+// Trips visible in the table. Pass 3 swaps this for the filtered set.
+function tripsForTable() {
+  return allTrips.slice();
+}
+
+function tripPlaceLabel(trip) {
+  return trip.location_label || trip.city || trip.formatted_address || '';
+}
+
+function tripAttendeesFor(tripId) {
+  return allTripAttendees.filter(a => a.trip_id === tripId);
+}
+
+function personName(personId) {
+  return allPeople.find(p => p.id === personId)?.full_name || 'Unknown';
+}
+
+function purposeToClass(purpose) {
+  if (!purpose) return 'tp-other';
+  const p = purpose.toLowerCase();
+  if (p.includes('kickoff')) return 'tp-kickoff';
+  if (p.includes('qbr') || p.includes('exec')) return 'tp-qbr';
+  if (p.includes('discovery')) return 'tp-discovery';
+  if (p.includes('conference') || p.includes('event')) return 'tp-conf';
+  if (p.includes('internal') || p.includes('offsite')) return 'tp-internal';
+  if (p.includes('client session')) return 'tp-session';
+  return 'tp-other';
+}
+
+function tripStatusToClass(status) {
+  switch (status) {
+    case 'Confirmed': return 'ts-confirmed';
+    case 'Completed': return 'ts-completed';
+    case 'Cancelled': return 'ts-cancelled';
+    default:          return 'ts-planned';
+  }
+}
+
+// "15-17 Sep 2026", "29 Sep - 2 Oct 2026", "29 Dec 2026 - 2 Jan 2027"
+function formatTripDates(trip) {
+  if (!trip.start_date || !trip.end_date) return '\u2013';
+  const s = new Date(trip.start_date + 'T00:00:00');
+  const e = new Date(trip.end_date + 'T00:00:00');
+  const mon = d => d.toLocaleDateString('en-US', { month: 'short' });
+  if (s.getFullYear() !== e.getFullYear()) {
+    return `${s.getDate()} ${mon(s)} ${s.getFullYear()} \u2013 ${e.getDate()} ${mon(e)} ${e.getFullYear()}`;
+  }
+  if (s.getMonth() !== e.getMonth()) {
+    return `${s.getDate()} ${mon(s)} \u2013 ${e.getDate()} ${mon(e)} ${e.getFullYear()}`;
+  }
+  if (s.getDate() === e.getDate()) {
+    return `${s.getDate()} ${mon(s)} ${s.getFullYear()}`;
+  }
+  return `${s.getDate()}\u2013${e.getDate()} ${mon(s)} ${s.getFullYear()}`;
+}
+
+function renderTrips() {
+  const s = sortState.trips;
+  const keyFns = {
+    account: t => (t.accounts?.account_name || ''),
+    place:   t => tripPlaceLabel(t),
+    days:    t => tripDays(t)
+  };
+  const sorted = sortData(tripsForTable(), s.col, s.dir, keyFns[s.col] || s.col);
+  renderTripsTable(sorted);
+}
+
+function renderTripsTable(trips) {
+  const tbody = document.getElementById('trips-tbody');
+  if (!tbody) return;
+
+  if (!trips.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>No trips logged yet. Add the first one to get started.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = trips.map(t => {
+    const attendees = tripAttendeesFor(t.id).map(a => personName(a.person_id));
+    const who = attendees.length ? attendees.join(', ') : '\u2013';
+    const account = t.accounts?.account_name || 'Internal';
+    const cancelled = t.status === 'Cancelled' ? ' class="trip-cancelled"' : '';
+
+    return `<tr${cancelled} style="cursor:pointer" onclick="openTripForm('${t.id}')">
+      <td class="trip-dates-cell">${formatTripDates(t)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${tripDays(t)}</td>
+      <td><strong>${escHtml(tripPlaceLabel(t)) || '\u2013'}</strong>${t.title ? `<div style="font-size:11px;color:#9CA3AF">${escHtml(t.title)}</div>` : ''}</td>
+      <td style="font-size:12px">${escHtml(t.country) || '\u2013'}</td>
+      <td style="font-size:12px">${escHtml(account)}</td>
+      <td><span class="trip-badge ${purposeToClass(t.purpose)}">${escHtml(t.purpose) || '\u2013'}</span></td>
+      <td class="trip-attendees-cell">${escHtml(who)}</td>
+      <td><span class="trip-badge ${tripStatusToClass(t.status)}">${escHtml(t.status) || 'Planned'}</span></td>
+      <td style="font-size:11px;color:#9CA3AF">${escHtml(t.logged_by) || '\u2013'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── TRIP FORM ──
+let editingTripId = null;
+
+function buildTripAccountOptions(selectedId) {
+  const sel = document.getElementById('tf-account_id');
+  sel.innerHTML = '<option value="">No account (internal)</option>' +
+    allAccounts
+      .slice()
+      .sort((a, b) => (a.account_name || '').localeCompare(b.account_name || ''))
+      .map(a => `<option value="${a.id}"${selectedId === a.id ? ' selected' : ''}>${escHtml(a.account_name)}</option>`)
+      .join('');
+}
+
+// Engagements have no name column, so the label is program plus phase.
+// A start date is appended only when an account has the same program twice.
+function buildTripEngagementOptions(accountId, selectedId) {
+  const sel = document.getElementById('tf-engagement_id');
+  if (!accountId) {
+    sel.innerHTML = '<option value="">None</option>';
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  const engagements = allEngagements.filter(e => e.account_id === accountId);
+  const programCounts = {};
+  engagements.forEach(e => { programCounts[e.rev_program] = (programCounts[e.rev_program] || 0) + 1; });
+
+  sel.innerHTML = '<option value="">None</option>' +
+    engagements.map(e => {
+      let label = `${e.rev_program || 'Engagement'} \u00b7 ${e.phase || 'No phase'}`;
+      if (programCounts[e.rev_program] > 1 && e.start_date) {
+        const d = new Date(e.start_date + 'T00:00:00');
+        label += ` \u00b7 ${d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+      }
+      return `<option value="${e.id}"${selectedId === e.id ? ' selected' : ''}>${escHtml(label)}</option>`;
+    }).join('');
+}
+
+function onTripAccountChange() {
+  buildTripEngagementOptions(document.getElementById('tf-account_id').value, null);
+}
+
+function buildTripPurposeOptions(selected) {
+  document.getElementById('tf-purpose').innerHTML =
+    '<option value="">Select...</option>' +
+    TRIP_PURPOSES.map(p => `<option${selected === p ? ' selected' : ''}>${p}</option>`).join('');
+}
+
+function buildTripStatusOptions(selected) {
+  const current = selected || 'Planned';
+  document.getElementById('tf-status').innerHTML =
+    TRIP_STATUSES.map(s => `<option${current === s ? ' selected' : ''}>${s}</option>`).join('');
+}
+
+function buildTripAttendeeCheckboxes(selectedIds) {
+  const selected = selectedIds || [];
+  const container = document.getElementById('tf-attendee-checkboxes');
+  const people = allPeople.filter(p => p.status === 'Active');
+  if (!people.length) {
+    container.innerHTML = '<div class="ms-empty">No people in roster yet</div>';
+  } else {
+    container.innerHTML = people.map(p => `
+      <div class="ms-option">
+        <input type="checkbox" id="tf-att-${p.id}" value="${p.id}"${selected.includes(p.id) ? ' checked' : ''}>
+        <label for="tf-att-${p.id}">${escHtml(p.full_name)}</label>
+      </div>
+    `).join('');
+  }
+  updateTripAttendeeTrigger();
+}
+
+function updateTripAttendeeTrigger() {
+  const ids = getMSValues('tf-att-dd');
+  const trigger = document.getElementById('tf-att-trigger');
+  if (!trigger) return;
+  trigger.textContent = ids.length ? ids.map(personName).join(', ') : 'Select attendees...';
+}
+
+function onTripAttendeeChange() {
+  updateTripAttendeeTrigger();
+  renderAttendeeOverrideRows();
+}
+
+function toggleManualCoords() {
+  const wrap = document.getElementById('tf-coords-wrap');
+  const open = wrap.style.display !== 'none';
+  wrap.style.display = open ? 'none' : 'block';
+  document.getElementById('tf-coords-link').textContent =
+    open ? 'Enter coordinates manually' : 'Hide coordinate fields';
+}
+
+function toggleAttendeeOverrides() {
+  const wrap = document.getElementById('tf-override-wrap');
+  const open = wrap.style.display !== 'none';
+  wrap.style.display = open ? 'none' : 'block';
+  document.getElementById('tf-override-link').textContent =
+    open ? 'Different dates for someone?' : 'Hide per-person dates';
+  if (!open) renderAttendeeOverrideRows();
+}
+
+// One date pair per selected attendee. Existing values are preserved across
+// re-renders so ticking another person doesn't wipe what's already typed.
+function renderAttendeeOverrideRows() {
+  const container = document.getElementById('tf-override-rows');
+  if (!container) return;
+  const ids = getMSValues('tf-att-dd');
+
+  const existing = {};
+  container.querySelectorAll('.tf-override-row').forEach(row => {
+    existing[row.dataset.personId] = {
+      start: row.querySelector('.tf-ov-start').value,
+      end:   row.querySelector('.tf-ov-end').value
+    };
+  });
+
+  if (!ids.length) {
+    container.innerHTML = '<div class="tf-override-empty">Pick attendees first.</div>';
+    return;
+  }
+
+  container.innerHTML = ids.map(id => {
+    const prev = existing[id] || tripFormOverrideSeed[id] || { start: '', end: '' };
+    return `<div class="tf-override-row" data-person-id="${id}">
+      <div class="tf-override-name">${escHtml(personName(id))}</div>
+      <input class="form-input tf-ov-start" type="date" value="${prev.start || ''}">
+      <input class="form-input tf-ov-end" type="date" value="${prev.end || ''}">
+    </div>`;
+  }).join('');
+}
+
+let tripFormOverrideSeed = {};
+
+function openTripForm(tripId) {
+  const trip = tripId ? allTrips.find(t => t.id === tripId) : null;
+  editingTripId = trip ? trip.id : null;
+
+  document.getElementById('trip-modal-title').textContent = trip ? 'Edit trip' : 'Add trip';
+  document.getElementById('trip-modal-sub').textContent = trip ? formatTripDates(trip) : '';
+
+  const deleteBtn = document.getElementById('trip-delete-btn');
+  if (deleteBtn) deleteBtn.style.display = trip ? 'inline-flex' : 'none';
+
+  document.getElementById('tf-location_label').value = trip?.location_label || '';
+  document.getElementById('tf-start_date').value = trip?.start_date || '';
+  document.getElementById('tf-end_date').value = trip?.end_date || '';
+  document.getElementById('tf-title').value = trip?.title || '';
+  document.getElementById('tf-notes').value = trip?.notes || '';
+  document.getElementById('tf-lat').value = trip?.lat ?? '';
+  document.getElementById('tf-lng').value = trip?.lng ?? '';
+  document.getElementById('tf-city').value = trip?.city || '';
+  document.getElementById('tf-region').value = trip?.region || '';
+  document.getElementById('tf-country').value = trip?.country || '';
+  document.getElementById('tf-country_code').value = trip?.country_code || '';
+
+  buildTripAccountOptions(trip?.account_id || '');
+  buildTripEngagementOptions(trip?.account_id || '', trip?.engagement_id || null);
+  buildTripPurposeOptions(trip?.purpose || '');
+  buildTripStatusOptions(trip?.status || 'Planned');
+
+  const attendees = trip ? tripAttendeesFor(trip.id) : [];
+  buildTripAttendeeCheckboxes(attendees.map(a => a.person_id));
+
+  // Seed the override rows from stored per-attendee dates
+  tripFormOverrideSeed = {};
+  let hasOverrides = false;
+  attendees.forEach(a => {
+    if (a.start_date || a.end_date) hasOverrides = true;
+    tripFormOverrideSeed[a.person_id] = { start: a.start_date || '', end: a.end_date || '' };
+  });
+
+  // Coordinates panel opens by itself when there's something in it
+  const hasCoords = trip && (trip.lat != null || trip.lng != null || trip.city || trip.country);
+  document.getElementById('tf-coords-wrap').style.display = hasCoords ? 'block' : 'none';
+  document.getElementById('tf-coords-link').textContent =
+    hasCoords ? 'Hide coordinate fields' : 'Enter coordinates manually';
+
+  document.getElementById('tf-override-wrap').style.display = hasOverrides ? 'block' : 'none';
+  document.getElementById('tf-override-link').textContent =
+    hasOverrides ? 'Hide per-person dates' : 'Different dates for someone?';
+  renderAttendeeOverrideRows();
+  updateTripDaysPreview();
+
+  document.getElementById('trip-modal').classList.add('open');
+}
+
+function updateTripDaysPreview() {
+  const start = document.getElementById('tf-start_date').value;
+  const end = document.getElementById('tf-end_date').value;
+  const el = document.getElementById('tf-days-preview');
+  if (!el) return;
+  const d = daysInclusive(start, end);
+  el.value = (start && end && d > 0) ? (d === 1 ? '1 day' : d + ' days') : '\u2013';
+}
+
+function closeTripForm() {
+  document.getElementById('trip-modal').classList.remove('open');
+  editingTripId = null;
+  tripFormOverrideSeed = {};
+}
+
+async function saveTrip() {
+  const location = document.getElementById('tf-location_label').value.trim();
+  const start = document.getElementById('tf-start_date').value;
+  const end = document.getElementById('tf-end_date').value;
+  const purpose = document.getElementById('tf-purpose').value;
+  const attendeeIds = getMSValues('tf-att-dd');
+
+  if (!location) { showToast('Location is required'); return; }
+  if (!start || !end) { showToast('Start and end dates are required'); return; }
+  if (end < start) { showToast('End date cannot be before the start date'); return; }
+  if (!purpose) { showToast('Purpose is required'); return; }
+  if (!attendeeIds.length) { showToast('Pick at least one attendee'); return; }
+
+  const parseNum = id => {
+    const v = document.getElementById(id).value.trim();
+    if (!v) return null;
+    const n = parseFloat(v);
+    return isNaN(n) ? null : n;
+  };
+
+  const payload = {
+    account_id:     document.getElementById('tf-account_id').value || null,
+    engagement_id:  document.getElementById('tf-engagement_id').value || null,
+    title:          document.getElementById('tf-title').value.trim() || null,
+    purpose:        purpose,
+    status:         document.getElementById('tf-status').value || 'Planned',
+    start_date:     start,
+    end_date:       end,
+    location_label: location,
+    city:           document.getElementById('tf-city').value.trim() || null,
+    region:         document.getElementById('tf-region').value.trim() || null,
+    country:        document.getElementById('tf-country').value.trim() || null,
+    country_code:   document.getElementById('tf-country_code').value.trim().toUpperCase() || null,
+    lat:            parseNum('tf-lat'),
+    lng:            parseNum('tf-lng'),
+    notes:          document.getElementById('tf-notes').value.trim() || null,
+    updated_at:     new Date().toISOString()
+  };
+
+  const btn = document.getElementById('trip-save-btn');
+  btn.classList.add('btn-saving');
+  btn.textContent = 'Saving...';
+
+  const restoreBtn = () => {
+    btn.classList.remove('btn-saving');
+    btn.textContent = 'Save trip';
+  };
+
+  let tripId = editingTripId;
+  if (editingTripId) {
+    const { error } = await db.from('trips').update(payload).eq('id', editingTripId);
+    if (error) { restoreBtn(); alert('Error saving trip: ' + error.message); return; }
+  } else {
+    payload.logged_by = currentUser?.email || null;
+    const { data, error } = await db.from('trips').insert(payload).select('id').single();
+    if (error) { restoreBtn(); alert('Error saving trip: ' + error.message); return; }
+    tripId = data.id;
+  }
+
+  // Attendees are reconciled by replacing the whole set for this trip
+  const overrides = {};
+  document.querySelectorAll('#tf-override-rows .tf-override-row').forEach(row => {
+    overrides[row.dataset.personId] = {
+      start: row.querySelector('.tf-ov-start').value || null,
+      end:   row.querySelector('.tf-ov-end').value || null
+    };
+  });
+
+  const { error: delError } = await db.from('trip_attendees').delete().eq('trip_id', tripId);
+  if (delError) { restoreBtn(); alert('Error updating attendees: ' + delError.message); return; }
+
+  const rows = attendeeIds.map(pid => ({
+    trip_id: tripId,
+    person_id: pid,
+    start_date: overrides[pid]?.start || null,
+    end_date:   overrides[pid]?.end || null
+  }));
+
+  const { error: insError } = await db.from('trip_attendees').insert(rows);
+  if (insError) { restoreBtn(); alert('Error saving attendees: ' + insError.message); return; }
+
+  restoreBtn();
+  closeTripForm();
+  await Promise.all([loadTrips(), loadTripAttendees()]);
+  showToast(editingTripId ? 'Trip updated' : 'Trip added');
+}
+
+async function deleteTripFromModal() {
+  if (!editingTripId) return;
+  const trip = allTrips.find(t => t.id === editingTripId);
+  const label = trip ? (tripPlaceLabel(trip) || 'this trip') : 'this trip';
+  if (!confirm(`Delete the trip to ${label}? This also removes its attendees and can't be undone.`)) return;
+  const { error } = await db.from('trips').delete().eq('id', editingTripId);
+  if (error) { alert('Error deleting: ' + error.message); return; }
+  allTrips = allTrips.filter(t => t.id !== editingTripId);
+  allTripAttendees = allTripAttendees.filter(a => a.trip_id !== editingTripId);
+  closeTripForm();
+  renderTravel();
+  showToast('Trip deleted');
 }
 
 // Travel days are always derived, never stored.
@@ -3779,6 +4392,7 @@ const sortState = {
   accounts:    { col: 'account_name', dir: 'asc' },
   engagements: { col: 'created_at',   dir: 'desc' },
   people:      { col: 'full_name',    dir: 'asc' },
+  trips:       { col: 'start_date',   dir: 'desc' },
 };
 
 function sortTable(table, col) {
@@ -3794,6 +4408,7 @@ function sortTable(table, col) {
   const tableEl = document.querySelector(
     table === 'accounts' ? '#accounts-table' :
     table === 'engagements' ? '#engagements-tbody' :
+    table === 'trips' ? '#trips-tbody' :
     '#people-tbody'
   )?.closest('table');
 
@@ -3836,6 +4451,8 @@ function sortTable(table, col) {
   } else if (table === 'people') {
     const sorted = sortData([...allPeople], col, s.dir);
     renderPeopleData(sorted);
+  } else if (table === 'trips') {
+    renderTrips();
   }
 }
 
