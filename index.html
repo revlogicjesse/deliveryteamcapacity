@@ -2407,9 +2407,16 @@
             <div class="section-header">
               <div>
                 <div class="section-title">Travel days by person</div>
-                <div class="section-sub">Calendar days on the road in the selected period, one row per person on the roster</div>
+                <div class="section-sub">Calendar days on the road in the selected period. Defaults to Engagement Leads, Support AMs and Pod Leaders</div>
               </div>
-              <div class="section-count" id="td-avg-chip">&ndash;</div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="filter-ms-wrap">
+                  <button type="button" class="filter-ms-trigger" id="fms-td-person-trigger" onclick="toggleFilterMS('fms-td-person-dd', this)">People shown</button>
+                  <div class="filter-ms-dropdown" id="fms-td-person-dd"></div>
+                </div>
+                <button class="filter-clear" onclick="resetTravelDaysPeople()">Reset</button>
+                <div class="section-count" id="td-avg-chip">&ndash;</div>
+              </div>
             </div>
             <div class="td-list" id="td-list"></div>
             <div class="td-legend" id="td-legend"></div>
@@ -2873,12 +2880,14 @@
 
       <div class="modal-section-label">Where and when</div>
       <div class="form-grid thirds" style="margin-bottom:8px">
+        <div class="form-field span-3" id="tf-search-field" style="display:none">
+          <label class="form-label">Search for a place</label>
+          <div id="tf-location-wrap"></div>
+          <div class="tf-location-current">Picking a result fills the Location below and captures coordinates for the map.</div>
+        </div>
         <div class="form-field span-3">
           <label class="form-label">Location *</label>
-          <div id="tf-location-wrap">
-            <input class="form-input" id="tf-location_label" placeholder="Berlin, Germany">
-            <div class="tf-location-current" id="tf-location-current" style="display:none"></div>
-          </div>
+          <input class="form-input" id="tf-location_label" placeholder="Berlin, Germany">
         </div>
         <div class="form-field">
           <label class="form-label">Start date *</label>
@@ -4502,6 +4511,21 @@ function populateTravelFilters() {
       '<div class="ms-empty">No trips logged yet</div>';
   }
 
+  const tdDd = document.getElementById('fms-td-person-dd');
+  if (tdDd) {
+    const people = allPeople.filter(p => p.status === 'Active');
+    // First build picks the default cohort. After that the user's choice sticks.
+    const keepTd = travelDaysCohortTouched
+      ? getFilterMSValues('fms-td-person-dd')
+      : people.filter(isDefaultTravelDaysPerson).map(p => p.id);
+    tdDd.innerHTML = people.length
+      ? people.map(p => `<div class="filter-ms-option">
+          <input type="checkbox" id="fms-td-p-${p.id}" value="${p.id}"${keepTd.includes(p.id) ? ' checked' : ''} onchange="onTravelDaysPeopleChange()">
+          <label for="fms-td-p-${p.id}">${escHtml(p.full_name)}</label></div>`).join('')
+      : '<div class="ms-empty">No people in roster yet</div>';
+    updateTravelDaysTrigger();
+  }
+
   const purposeDd = document.getElementById('fms-tr-purpose-dd');
   if (purposeDd) {
     // Retired purposes still in the data stay filterable
@@ -4517,6 +4541,42 @@ function populateTravelFilters() {
   onFilterMSChange('fms-tr-purpose-dd', 'fms-tr-purpose-trigger', 'All purposes');
 }
 
+let travelDaysCohortTouched = false;
+
+function isDefaultTravelDaysPerson(person) {
+  return TRAVEL_DAYS_DEFAULT_ROLES.includes(person.role)
+      || TRAVEL_DAYS_ALWAYS_INCLUDE.includes(person.full_name);
+}
+
+function updateTravelDaysTrigger() {
+  const ids = getFilterMSValues('fms-td-person-dd');
+  const active = allPeople.filter(p => p.status === 'Active');
+  const trigger = document.getElementById('fms-td-person-trigger');
+  if (!trigger) return;
+  if (!ids.length) {
+    trigger.textContent = 'Nobody selected';
+  } else if (ids.length === active.length) {
+    trigger.textContent = 'Everyone';
+  } else if (ids.length === 1) {
+    trigger.textContent = personName(ids[0]);
+  } else {
+    trigger.textContent = ids.length + ' people';
+  }
+  trigger.classList.toggle('active', ids.length !== active.length);
+}
+
+function onTravelDaysPeopleChange() {
+  travelDaysCohortTouched = true;
+  updateTravelDaysTrigger();
+  renderTravelDaysByPerson();
+}
+
+function resetTravelDaysPeople() {
+  travelDaysCohortTouched = false;
+  populateTravelFilters();
+  renderTravelDaysByPerson();
+}
+
 function travelFiltersActive() {
   return getFilterMSValues('fms-tr-person-dd').length > 0
     || getFilterMSValues('fms-tr-account-dd').length > 0
@@ -4525,6 +4585,7 @@ function travelFiltersActive() {
 }
 
 function clearTravelFilters() {
+  travelDaysCohortTouched = false;
   ['fms-tr-person-dd', 'fms-tr-account-dd', 'fms-tr-purpose-dd'].forEach(id => {
     document.querySelectorAll('#' + id + ' input[type=checkbox]').forEach(cb => { cb.checked = false; });
   });
@@ -4587,8 +4648,18 @@ function personDayTotals(trips) {
   return totals;
 }
 
+// Attendees of a trip that the person filter admits. With no person selected
+// that's everyone, which is what the unfiltered totals want.
+function filteredAttendeesFor(tripId) {
+  const selected = getFilterMSValues('fms-tr-person-dd');
+  const rows = tripAttendeesFor(tripId);
+  return selected.length ? rows.filter(a => selected.includes(a.person_id)) : rows;
+}
+
+// Person-days for a trip, counting only the filtered attendees. Filtering to
+// one person must not hand them the whole trip's person-days.
 function tripPersonDays(trip) {
-  return tripAttendeesFor(trip.id).reduce((sum, a) => sum + attendeeDays(a, trip), 0);
+  return filteredAttendeesFor(trip.id).reduce((sum, a) => sum + attendeeDays(a, trip), 0);
 }
 
 function placeKey(t) {
@@ -5112,18 +5183,27 @@ function renderTravelDaysByPerson() {
   if (!list) return;
 
   const activePeople = allPeople.filter(p => p.status === 'Active');
-  const selected = getFilterMSValues('fms-tr-person-dd');
-  const shown = selected.length ? activePeople.filter(p => selected.includes(p.id)) : activePeople;
+  const cohortIds = getFilterMSValues('fms-td-person-dd');
+  const cohort = activePeople.filter(p => cohortIds.includes(p.id));
+
+  // The page-level person filter is an explicit choice, so it wins for which
+  // rows appear. Otherwise the section's own cohort decides.
+  const globalSelected = getFilterMSValues('fms-tr-person-dd');
+  const shown = globalSelected.length
+    ? activePeople.filter(p => globalSelected.includes(p.id))
+    : cohort;
 
   const totals = personDayTotals(notCancelled(filteredTrips()));
-  // The average always spans the whole roster, so filtering to one person
-  // shows where they sit against the team rather than against themselves.
+  // The average spans the cohort, never just the people currently on screen,
+  // so filtering to one person still shows them against the group.
   const teamTotals = personDayTotals(notCancelled(filterTripsBy({ usePerson: false })));
-  const teamDays = activePeople.reduce((sum, p) => sum + (teamTotals[p.id]?.days || 0), 0);
-  const avg = activePeople.length ? teamDays / activePeople.length : 0;
+  const teamDays = cohort.reduce((sum, p) => sum + (teamTotals[p.id]?.days || 0), 0);
+  const avg = cohort.length ? teamDays / cohort.length : 0;
 
   if (!shown.length) {
-    list.innerHTML = '<div class="empty-state"><p>No active people on the roster.</p></div>';
+    list.innerHTML = cohortIds.length
+      ? '<div class="empty-state"><p>Nobody matches both the page filter and the people shown here.</p></div>'
+      : '<div class="empty-state"><p>No people selected. Use the picker above, or hit Reset.</p></div>';
     legend.innerHTML = '';
     document.getElementById('td-avg-chip').textContent = '\u2013';
     return;
@@ -5158,7 +5238,7 @@ function renderTravelDaysByPerson() {
   legend.innerHTML = `
     <div class="legend-item"><span class="legend-swatch" style="background:var(--cyan)"></span> Above team average</div>
     <div class="legend-item"><span class="legend-swatch" style="background:var(--green)"></span> At or below average</div>
-    <div class="legend-item"><span class="legend-rule"></span> Team average (${avg.toFixed(1)} days)</div>
+    <div class="legend-item"><span class="legend-rule"></span> Average across the ${cohort.length} ${cohort.length === 1 ? 'person' : 'people'} shown here (${avg.toFixed(1)} days)</div>
     <div class="legend-item" style="margin-left:auto">Bars scale to the highest person in view (${max} days)</div>`;
 }
 
@@ -5351,7 +5431,7 @@ function renderAccountRollup() {
     const trips = windowed.filter(t => t.account_id === acc.id);
     const days = trips.reduce((sum, t) => sum + tripPersonDays(t), 0);
     const people = new Set();
-    trips.forEach(t => tripAttendeesFor(t.id).forEach(a => people.add(a.person_id)));
+    trips.forEach(t => filteredAttendeesFor(t.id).forEach(a => people.add(a.person_id)));
 
     // Last visit looks at all history, not the selected window, otherwise
     // filtering to a future quarter would claim we have never been.
@@ -5440,13 +5520,9 @@ function setLocationFields(place, parsed) {
   showCurrentLocationLine();
 }
 
-function showCurrentLocationLine() {
-  const el = document.getElementById('tf-location-current');
-  const value = document.getElementById('tf-location_label').value;
-  if (!el || !placeAutocompleteEl) return;
-  el.style.display = value ? 'block' : 'none';
-  el.innerHTML = value ? `Selected: <b>${escHtml(value)}</b>` : '';
-}
+// The Location field is visible and carries the value, so there is nothing
+// separate to echo back.
+function showCurrentLocationLine() {}
 
 async function mountPlacesAutocomplete() {
   if (placeAutocompleteEl || mapsKeyMissing()) return;
@@ -5457,8 +5533,8 @@ async function mountPlacesAutocomplete() {
     placeAutocompleteEl.id = 'tf-place-autocomplete';
 
     const wrap = document.getElementById('tf-location-wrap');
-    wrap.insertBefore(placeAutocompleteEl, wrap.firstChild);
-    document.getElementById('tf-location_label').style.display = 'none';
+    wrap.appendChild(placeAutocompleteEl);
+    document.getElementById('tf-search-field').style.display = '';
 
     placeAutocompleteEl.addEventListener('gmp-select', async ({ placePrediction }) => {
       const place = placePrediction.toPlace();
@@ -5471,7 +5547,16 @@ async function mountPlacesAutocomplete() {
       setLocationFields(place, parseAddressComponents(place.addressComponents));
     });
 
-    showCurrentLocationLine();
+    // Mirror typing into the Location field so someone who types a full address
+    // and never picks a suggestion still ends up with a saveable trip. The
+    // widget keeps its input in shadow DOM, so this is best effort: the Location
+    // field is visible and editable regardless.
+    placeAutocompleteEl.addEventListener('input', e => {
+      const inner = (e.composedPath && e.composedPath()[0]) || e.target;
+      const typed = inner && typeof inner.value === 'string' ? inner.value : '';
+      const target = document.getElementById('tf-location_label');
+      if (typed && !target.value.trim()) target.value = typed;
+    });
   } catch (err) {
     // No key, blocked script, or offline: the plain input is already there
     placeAutocompleteEl = null;
@@ -5696,7 +5781,7 @@ async function saveTrip() {
   const attendeeIds = getMSValues('tf-att-dd');
 
   if (!title) { showToast('Trip title is required'); return; }
-  if (!location) { showToast('Location is required'); return; }
+  if (!location) { showToast('Location is required. Type it in, or pick a result from the search.'); return; }
   if (!start || !end) { showToast('Start and end dates are required'); return; }
   if (end < start) { showToast('End date cannot be before the start date'); return; }
   if (!purpose) { showToast('Purpose is required'); return; }
@@ -6106,6 +6191,12 @@ const WS_STATUSES = ['Purchased','Active pipeline','Potential','Not needed','Unk
 
 const TRIP_PURPOSES = ['Kickoff','Training','Workshop','Boot Camp','SKO','Conference/event','EBR','Internal','Other'];
 const TRIP_STATUSES = ['Planned','Confirmed','Completed','Cancelled'];
+
+// Who the travel-days chart shows by default. Anyone holding one of these
+// roles, plus anyone named outright. Edit these two lines when the roster
+// changes rather than hunting through the render code.
+const TRAVEL_DAYS_DEFAULT_ROLES = ['Engagement Lead','Support AM','Pod Leader'];
+const TRAVEL_DAYS_ALWAYS_INCLUDE = ['Tiff Kummer'];
 
 let editingPersonId = null;
 let editingAccountId = null;
