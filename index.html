@@ -1638,6 +1638,119 @@
     .td-row { grid-template-columns: 130px 1fr 70px; gap: 10px; }
   }
 
+  /* ── CALENDAR ── */
+  .cal-toolbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px; border-bottom: var(--border); flex-wrap: wrap;
+  }
+  .cal-period {
+    font-size: 13px; font-weight: 600; color: var(--dark);
+    min-width: 180px;
+  }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-nav-btn {
+    font-family: inherit; font-size: 12px; color: var(--dark);
+    background: white; border: var(--border); border-radius: 6px;
+    padding: 5px 10px; cursor: pointer; line-height: 1.2;
+  }
+  .cal-nav-btn:hover { background: #F9FAFB; border-color: rgba(33,42,54,0.25); }
+  .cal-spacer { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .cal-hint { font-size: 11px; color: #9CA3AF; }
+
+  .cal-dow-row {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: var(--border);
+  }
+  .cal-dow {
+    padding: 8px 10px; font-size: 10px; font-weight: 600;
+    color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.6px;
+    text-align: left; background: #FAFAFA;
+  }
+  .cal-week { position: relative; border-bottom: var(--border); }
+  .cal-week:last-child { border-bottom: none; }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); height: 100%; }
+  .cal-day { border-right: var(--border); padding: 5px 8px; min-width: 0; }
+  .cal-day:last-child { border-right: none; }
+  .cal-day.other-month { background: #FBFBFC; }
+  .cal-daynum { font-size: 11px; color: #6B7280; font-variant-numeric: tabular-nums; }
+  .cal-day.other-month .cal-daynum { color: #C9CED6; }
+  .cal-day.today .cal-daynum {
+    background: var(--green); color: white; font-weight: 600;
+    border-radius: 10px; padding: 1px 6px; display: inline-block;
+  }
+  .cal-chips { position: absolute; inset: 0; pointer-events: none; }
+  .cal-chip {
+    position: absolute; height: 17px; line-height: 17px;
+    border-radius: 3px; color: white;
+    font-size: 10.5px; font-weight: 500;
+    padding: 0 6px; overflow: hidden;
+    white-space: nowrap; text-overflow: ellipsis;
+    pointer-events: auto; cursor: pointer;
+  }
+  .cal-chip:hover { filter: brightness(0.92); }
+  .cal-more {
+    position: absolute; left: 8px; bottom: 3px;
+    font-size: 10px; color: #9CA3AF; pointer-events: none;
+  }
+  .cal-empty { padding: 40px 20px; text-align: center; color: #9CA3AF; font-size: 13px; }
+
+  /* Purpose colours for bars and chips (solid, white text) */
+  .pc-kickoff   { background: #7C5CD6; }
+  .pc-training  { background: #51BC88; }
+  .pc-workshop  { background: #388A8C; }
+  .pc-bootcamp  { background: #4F46E5; }
+  .pc-sko       { background: #E11D48; }
+  .pc-conf      { background: #D97706; }
+  .pc-ebr       { background: #2563EB; }
+  .pc-internal  { background: #9CA3AF; }
+  .pc-other     { background: #C4C9D0; }
+
+  .cal-legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    padding: 12px 20px; border-top: var(--border);
+    background: #FAFAFA; font-size: 11px; color: #6B7280;
+  }
+  .cal-legend .legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* Quarter view rows */
+  .cq-row { display: flex; align-items: stretch; margin-bottom: 4px; }
+  .cq-label {
+    width: 200px; flex-shrink: 0; padding: 4px 12px 4px 0;
+    font-size: 12px; color: var(--dark); font-weight: 500;
+  }
+  .cq-sublabel { display: block; font-size: 11px; color: #9CA3AF; font-weight: 400; }
+  .cq-lanes { position: relative; flex: 1; min-height: 22px; }
+  .cq-bar {
+    position: absolute; height: 18px; border-radius: 3px;
+    color: white; font-size: 10.5px; line-height: 18px;
+    padding: 0 6px; overflow: hidden; white-space: nowrap;
+    text-overflow: ellipsis; cursor: pointer;
+  }
+  .cq-bar:hover { filter: brightness(0.92); }
+
+  /* ── MAP ── */
+  #travel-map { width: 100%; height: 520px; background: #EEF1F4; }
+  .map-empty { padding: 60px 24px; text-align: center; color: #6B7280; }
+  .map-empty h4 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
+  .map-empty p { font-size: 13px; line-height: 1.6; max-width: 60ch; margin: 0 auto 8px; }
+  .map-empty code {
+    font-family: 'DM Mono', ui-monospace, monospace; font-size: 12px;
+    background: #F3F4F6; padding: 1px 5px; border-radius: 3px;
+  }
+  .gm-iw-trip { font-size: 12px; line-height: 1.5; margin-bottom: 6px; }
+  .gm-iw-trip:last-child { margin-bottom: 0; }
+  .gm-iw-place { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+  /* Places Autocomplete element, styled to match .form-input */
+  gmp-place-autocomplete {
+    width: 100%;
+    --gmp-mat-color-surface: white;
+    --gmp-mat-color-on-surface: #212A36;
+    --gmp-mat-color-outline: rgba(33,42,54,0.15);
+  }
+  .tf-location-current { font-size: 11px; color: #6B7280; margin-top: 6px; }
+  .tf-location-current b { color: var(--dark); font-weight: 500; }
+
   .detail-page { display: none; animation: fadeIn 0.2s ease; }
   .detail-page.active { display: block; }
 
@@ -2346,10 +2459,31 @@
             </div>
           </div>
           <div id="travel-view-calendar" class="travel-view">
-            <div class="empty-state"><p>Calendar lands in pass 4.</p></div>
+            <div class="cal-toolbar">
+              <div class="view-toggle">
+                <button class="view-toggle-btn active" id="cal-mode-month" onclick="setCalMode('month')">Month</button>
+                <button class="view-toggle-btn" id="cal-mode-quarter" onclick="setCalMode('quarter')">Quarter</button>
+              </div>
+              <div class="cal-nav">
+                <button class="cal-nav-btn" onclick="shiftCalendar(-1)">&larr;</button>
+                <button class="cal-nav-btn" onclick="resetCalendar()">Today</button>
+                <button class="cal-nav-btn" onclick="shiftCalendar(1)">&rarr;</button>
+              </div>
+              <div class="cal-period" id="cal-period">&ndash;</div>
+              <div class="cal-spacer">
+                <span class="cal-hint" id="cal-group-hint" style="display:none">Group by</span>
+                <select class="form-select" id="cal-group-by" style="width:auto;display:none" onchange="renderCalendar()">
+                  <option value="person">Person</option>
+                  <option value="account">Account</option>
+                </select>
+                <span class="cal-hint">Period is set here, not by the date filter</span>
+              </div>
+            </div>
+            <div id="cal-body"></div>
+            <div class="cal-legend" id="cal-legend"></div>
           </div>
           <div id="travel-view-map" class="travel-view">
-            <div class="empty-state"><p>Map lands in pass 4.</p></div>
+            <div id="map-shell"></div>
           </div>
           <div id="travel-view-trips" class="travel-view">
             <div style="overflow-x:auto;">
@@ -2743,6 +2877,7 @@
           <label class="form-label">Location *</label>
           <div id="tf-location-wrap">
             <input class="form-input" id="tf-location_label" placeholder="Berlin, Germany">
+            <div class="tf-location-current" id="tf-location-current" style="display:none"></div>
           </div>
         </div>
         <div class="form-field">
@@ -2787,6 +2922,8 @@
               <label class="form-label">Country code</label>
               <input class="form-input" id="tf-country_code" placeholder="DE" maxlength="2">
             </div>
+            <input type="hidden" id="tf-place_id_store">
+            <input type="hidden" id="tf-formatted_address_store">
           </div>
         </div>
       </div>
@@ -3025,7 +3162,7 @@
 <script>
 const SUPABASE_URL = 'https://qjmywacxiolnhtnwqxyt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__lKVBWUmiokZgs8Gigi9tA_HZJfcUu7';
-const GOOGLE_MAPS_KEY = 'REPLACE_WITH_GOOGLE_MAPS_KEY';
+const GOOGLE_MAPS_KEY = 'AIzaSyADLCm5rNv5u8Hsvqkn7RajJIm9G6ymO5E';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -4185,6 +4322,8 @@ function setTravelView(view) {
     document.getElementById('travel-view-' + v).classList.toggle('active', v === view);
   });
   renderTravel();
+  // Maps only loads once somebody actually asks for the map
+  if (view === 'map') renderMap();
 }
 
 function renderTravel() {
@@ -4213,6 +4352,8 @@ function renderTravel() {
 
   renderTrips();
   renderTravelDashboard();
+  renderCalendar();
+  if (currentTravelView === 'map') renderMap();
 }
 
 // ── TRAVEL FILTERS ──
@@ -4561,6 +4702,374 @@ function renderTripsTable(trips) {
   }).join('');
 }
 
+// ── TRAVEL CALENDAR ──
+// The calendar drives its own period with prev / next / today, the same way
+// the engagements timeline does. The date filter would fight it, so the
+// calendar honours person, account and purpose only.
+let calMode = 'month';
+let calMonthOffset = 0;
+let calQuarterOffset = 0;
+const CAL_MAX_LANES = 4;
+
+function purposeBarClass(purpose) {
+  return purposeToClass(purpose).replace('tp-', 'pc-');
+}
+
+function setCalMode(mode) {
+  calMode = mode;
+  document.getElementById('cal-mode-month').classList.toggle('active', mode === 'month');
+  document.getElementById('cal-mode-quarter').classList.toggle('active', mode === 'quarter');
+  const show = mode === 'quarter';
+  document.getElementById('cal-group-by').style.display = show ? '' : 'none';
+  document.getElementById('cal-group-hint').style.display = show ? '' : 'none';
+  renderCalendar();
+}
+
+function shiftCalendar(dir) {
+  if (calMode === 'month') calMonthOffset += dir; else calQuarterOffset += dir;
+  renderCalendar();
+}
+
+function resetCalendar() {
+  calMonthOffset = 0;
+  calQuarterOffset = 0;
+  renderCalendar();
+}
+
+function calendarTrips() {
+  return notCancelled(filterTripsBy({ useDate: false })).filter(t => t.start_date && t.end_date);
+}
+
+// Greedy lane packing so overlapping bars stack instead of colliding.
+function assignLanes(segments) {
+  const lanes = [];
+  segments
+    .slice()
+    .sort((a, b) => a.start.localeCompare(b.start) || b.end.localeCompare(a.end))
+    .forEach(seg => {
+      let i = 0;
+      while (lanes[i] && lanes[i].some(s => s.start <= seg.end && seg.start <= s.end)) i++;
+      (lanes[i] = lanes[i] || []).push(seg);
+      seg.lane = i;
+    });
+  return lanes.length;
+}
+
+function calChipLabel(t) {
+  return t.title || `${tripPlaceLabel(t)}${t.accounts?.account_name ? ' \u00b7 ' + t.accounts.account_name : ''}`;
+}
+
+function renderCalendar() {
+  const body = document.getElementById('cal-body');
+  if (!body) return;
+  if (calMode === 'month') renderCalendarMonth(body); else renderCalendarQuarter(body);
+  renderCalendarLegend();
+}
+
+function renderCalendarLegend() {
+  const el = document.getElementById('cal-legend');
+  if (!el) return;
+  const used = [...new Set(calendarTrips().map(t => t.purpose).filter(Boolean))];
+  el.innerHTML = used.length
+    ? used.map(p => `<div class="legend-item"><span class="legend-swatch ${purposeBarClass(p)}"></span>${escHtml(p)}</div>`).join('')
+      + '<div class="legend-item" style="margin-left:auto">Chips span the whole trip. Click one to open it.</div>'
+    : '<div class="legend-item">No trips to show yet.</div>';
+}
+
+function renderCalendarMonth(body) {
+  const now = new Date();
+  const base = new Date(now.getFullYear(), now.getMonth() + calMonthOffset, 1);
+  const year = base.getFullYear(), month = base.getMonth();
+  document.getElementById('cal-period').textContent =
+    base.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const gridStart = new Date(year, month, 1 - base.getDay());
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const weeks = Math.ceil((base.getDay() + daysInMonth) / 7);
+  const trips = calendarTrips();
+  const today = todayIso();
+
+  const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  let html = '<div class="cal-dow-row">' + dow.map(d => `<div class="cal-dow">${d}</div>`).join('') + '</div>';
+
+  for (let w = 0; w < weeks; w++) {
+    const weekStartDate = new Date(gridStart);
+    weekStartDate.setDate(gridStart.getDate() + w * 7);
+    const weekStart = isoDate(weekStartDate);
+    const weekEnd = addDaysIso(weekStart, 6);
+
+    const segs = trips
+      .filter(t => t.start_date <= weekEnd && t.end_date >= weekStart)
+      .map(t => ({
+        trip: t,
+        start: t.start_date < weekStart ? weekStart : t.start_date,
+        end: t.end_date > weekEnd ? weekEnd : t.end_date
+      }));
+    const laneCount = assignLanes(segs);
+    const shownLanes = Math.min(laneCount, CAL_MAX_LANES);
+    const hidden = segs.filter(s => s.lane >= CAL_MAX_LANES).length;
+    const height = Math.max(84, 26 + shownLanes * 20 + (hidden ? 16 : 6));
+
+    let cells = '';
+    for (let d = 0; d < 7; d++) {
+      const dayDate = new Date(weekStartDate);
+      dayDate.setDate(weekStartDate.getDate() + d);
+      const iso = isoDate(dayDate);
+      const cls = [
+        'cal-day',
+        dayDate.getMonth() !== month ? 'other-month' : '',
+        iso === today ? 'today' : ''
+      ].filter(Boolean).join(' ');
+      cells += `<div class="${cls}"><span class="cal-daynum">${dayDate.getDate()}</span></div>`;
+    }
+
+    const chips = segs.filter(s => s.lane < CAL_MAX_LANES).map(s => {
+      const startCol = Math.round((new Date(s.start + 'T00:00:00') - weekStartDate) / 86400000);
+      const endCol = Math.round((new Date(s.end + 'T00:00:00') - weekStartDate) / 86400000);
+      const span = endCol - startCol + 1;
+      const left = (startCol / 7) * 100;
+      const width = (span / 7) * 100;
+      return `<div class="cal-chip ${purposeBarClass(s.trip.purpose)}"
+        style="left:calc(${left}% + 4px);width:calc(${width}% - 8px);top:${26 + s.lane * 20}px"
+        onclick="openTripForm('${s.trip.id}')"
+        title="${escHtml(calChipLabel(s.trip))} \u00b7 ${escHtml(formatTripDates(s.trip))}">${escHtml(calChipLabel(s.trip))}</div>`;
+    }).join('');
+
+    html += `<div class="cal-week" style="height:${height}px">
+      <div class="cal-days">${cells}</div>
+      <div class="cal-chips">${chips}${hidden ? `<div class="cal-more">+${hidden} more</div>` : ''}</div>
+    </div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function renderCalendarQuarter(body) {
+  const { startDate, endDate } = getQuarterBounds(calQuarterOffset);
+  const qNum = Math.floor(startDate.getMonth() / 3) + 1;
+  document.getElementById('cal-period').textContent = `Q${qNum} ${startDate.getFullYear()}`;
+
+  const winStart = isoDate(startDate), winEnd = isoDate(endDate);
+  const span = endDate - startDate;
+  const trips = calendarTrips().filter(t => t.start_date <= winEnd && t.end_date >= winStart);
+
+  if (!trips.length) {
+    body.innerHTML = '<div class="cal-empty">No trips in this quarter.</div>';
+    return;
+  }
+
+  const groupBy = document.getElementById('cal-group-by').value;
+  const groups = {};
+  trips.forEach(t => {
+    if (groupBy === 'account') {
+      const key = t.accounts?.account_name || 'Internal';
+      (groups[key] = groups[key] || []).push({ trip: t, start: t.start_date, end: t.end_date });
+    } else {
+      tripAttendeesFor(t.id).forEach(a => {
+        const key = personName(a.person_id);
+        const r = attendeeRange(a, t);
+        (groups[key] = groups[key] || []).push({ trip: t, start: r.start, end: r.end });
+      });
+    }
+  });
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months = [];
+  let cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  while (cursor <= endDate) { months.push(new Date(cursor)); cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1); }
+
+  let html = '<div style="padding:16px 20px 20px">';
+  html += '<div class="tl-header" style="position:relative;height:20px;margin-left:200px;margin-bottom:8px;">';
+  months.forEach(m => {
+    const pct = ((m - startDate) / span) * 100;
+    html += `<span class="tl-month-label" style="left:${pct}%">${monthNames[m.getMonth()]}</span>`;
+  });
+  html += '</div><div style="position:relative">';
+
+  months.forEach(m => {
+    const pct = ((m - startDate) / span) * 100;
+    if (pct > 0) html += `<div class="tl-grid" style="left:calc(200px + (100% - 200px) * ${pct / 100})"></div>`;
+  });
+
+  const now = new Date();
+  if (now >= startDate && now <= endDate) {
+    const pct = ((now - startDate) / span) * 100;
+    html += `<div class="tl-today-line" style="left:calc(200px + (100% - 200px) * ${pct / 100})"><div class="tl-today-dot"></div></div>`;
+  }
+
+  Object.keys(groups).sort().forEach(key => {
+    const segs = groups[key];
+    const laneCount = assignLanes(segs);
+    const days = segs.reduce((sum, s) => sum + daysInclusive(s.start, s.end), 0);
+
+    const bars = segs.map(s => {
+      const bStart = new Date((s.start < winStart ? winStart : s.start) + 'T00:00:00');
+      const bEnd = new Date((s.end > winEnd ? winEnd : s.end) + 'T00:00:00');
+      const left = ((bStart - startDate) / span) * 100;
+      const width = Math.max(((bEnd - bStart) / span) * 100, 0.8);
+      const label = groupBy === 'account' ? (s.trip.title || tripPlaceLabel(s.trip)) : tripPlaceLabel(s.trip);
+      return `<div class="cq-bar ${purposeBarClass(s.trip.purpose)}"
+        style="left:${left}%;width:${width}%;top:${s.lane * 20}px"
+        onclick="openTripForm('${s.trip.id}')"
+        title="${escHtml(calChipLabel(s.trip))} \u00b7 ${escHtml(formatTripDates(s.trip))}">${width > 6 ? escHtml(label) : ''}</div>`;
+    }).join('');
+
+    html += `<div class="cq-row">
+      <div class="cq-label">${escHtml(key)}<span class="cq-sublabel">${segs.length} ${segs.length === 1 ? 'trip' : 'trips'} \u00b7 ${days} days</span></div>
+      <div class="cq-lanes" style="height:${Math.max(22, laneCount * 20)}px">${bars}</div>
+    </div>`;
+  });
+
+  html += '</div></div>';
+  body.innerHTML = html;
+}
+
+// ── TRAVEL MAP ──
+// The Maps script is injected on first use and never on app boot, so quota
+// only burns when somebody actually opens the map or the trip form.
+let googleMapsPromise = null;
+let travelMap = null;
+let travelMarkers = [];
+let travelInfoWindow = null;
+
+function mapsKeyMissing() {
+  return !GOOGLE_MAPS_KEY || GOOGLE_MAPS_KEY === 'REPLACE_WITH_GOOGLE_MAPS_KEY';
+}
+
+// Clears the memoized failure so a corrected key can be picked up without a reload
+function retryGoogleMaps() {
+  googleMapsPromise = null;
+  travelMap = null;
+  renderMap();
+}
+
+function loadGoogleMaps() {
+  if (googleMapsPromise) return googleMapsPromise;
+  if (mapsKeyMissing()) return Promise.reject(new Error('no-key'));
+  googleMapsPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(GOOGLE_MAPS_KEY) +
+            '&libraries=places&loading=async&v=weekly';
+    s.async = true;
+    s.onload = () => resolve(window.google);
+    s.onerror = () => reject(new Error('load-failed'));
+    document.head.appendChild(s);
+  });
+  return googleMapsPromise;
+}
+
+function mapMarkerScale(count) {
+  if (count >= 7) return 18;
+  if (count >= 4) return 14;
+  if (count >= 2) return 11;
+  return 8;
+}
+
+function locatedTrips() {
+  return notCancelled(filteredTrips()).filter(t => t.lat != null && t.lng != null);
+}
+
+function renderMap() {
+  const shell = document.getElementById('map-shell');
+  if (!shell) return;
+
+  if (mapsKeyMissing()) {
+    shell.innerHTML = `<div class="map-empty">
+      <h4>The map needs a Google Maps key</h4>
+      <p>Add it to the <code>GOOGLE_MAPS_KEY</code> constant in index.html and this view lights up. Everything else in Travel works without it.</p>
+      <p>Trips keep their coordinates either way, so nothing is lost in the meantime.</p>
+    </div>`;
+    return;
+  }
+
+  if (!document.getElementById('travel-map')) {
+    shell.innerHTML = '<div id="travel-map"></div>';
+  }
+
+  loadGoogleMaps().then(() => drawMapMarkers()).catch(err => {
+    shell.innerHTML = `<div class="map-empty">
+      <h4>Couldn't load Google Maps</h4>
+      <p>${err.message === 'load-failed' ? 'The script failed to load. Check the key restrictions in Google Cloud, particularly the HTTP referrer.' : escHtml(err.message)}</p>
+      <button class="btn-secondary" onclick="retryGoogleMaps()">Try again</button>
+    </div>`;
+  });
+}
+
+function drawMapMarkers() {
+  const el = document.getElementById('travel-map');
+  if (!el || !window.google?.maps) return;
+
+  if (!travelMap) {
+    travelMap = new google.maps.Map(el, {
+      center: { lat: 39.5, lng: -98.35 },
+      zoom: 4,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false
+    });
+    travelInfoWindow = new google.maps.InfoWindow();
+  }
+
+  travelMarkers.forEach(m => m.setMap(null));
+  travelMarkers = [];
+
+  const trips = locatedTrips();
+  if (!trips.length) {
+    travelInfoWindow.close();
+    return;
+  }
+
+  // One marker per distinct place, not per trip
+  const places = {};
+  trips.forEach(t => {
+    const key = placeKey(t) || (t.lat + ',' + t.lng);
+    if (!places[key]) places[key] = { label: tripPlaceLabel(t), lat: +t.lat, lng: +t.lng, trips: [] };
+    places[key].trips.push(t);
+  });
+
+  const bounds = new google.maps.LatLngBounds();
+
+  Object.values(places).forEach(p => {
+    const pos = { lat: p.lat, lng: p.lng };
+    const marker = new google.maps.Marker({
+      position: pos,
+      map: travelMap,
+      title: `${p.label} \u00b7 ${p.trips.length} ${p.trips.length === 1 ? 'trip' : 'trips'}`,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: mapMarkerScale(p.trips.length),
+        fillColor: '#388A8C',
+        fillOpacity: 0.85,
+        strokeColor: '#FFFFFF',
+        strokeWeight: 2
+      }
+    });
+
+    marker.addListener('click', () => {
+      const rows = p.trips
+        .slice()
+        .sort((a, b) => b.start_date.localeCompare(a.start_date))
+        .map(t => {
+          const who = tripAttendeesFor(t.id).map(a => personName(a.person_id)).join(', ');
+          const account = t.accounts?.account_name || 'Internal';
+          return `<div class="gm-iw-trip"><b>${escHtml(formatTripDates(t))}</b> \u00b7 ${escHtml(account)}<br>${escHtml(who || 'No attendees')}</div>`;
+        }).join('');
+      travelInfoWindow.setContent(
+        `<div class="gm-iw-place">${escHtml(p.label)} \u00b7 ${p.trips.length} ${p.trips.length === 1 ? 'trip' : 'trips'}</div>${rows}`);
+      travelInfoWindow.open({ anchor: marker, map: travelMap });
+    });
+
+    travelMarkers.push(marker);
+    bounds.extend(pos);
+  });
+
+  travelMap.fitBounds(bounds, 60);
+  // One trip shouldn't zoom to a street corner
+  google.maps.event.addListenerOnce(travelMap, 'idle', () => {
+    if (travelMap.getZoom() > 11) travelMap.setZoom(11);
+  });
+}
+
 // ── TRAVEL DASHBOARD ──
 function renderTravelDashboard() {
   renderTravelStats();
@@ -4893,6 +5402,82 @@ function renderAccountRollup() {
   }).join('');
 }
 
+// ── PLACES AUTOCOMPLETE ──
+// Mounted on first trip form open. The plain text input stays in the DOM as
+// the value store, so saveTrip is unchanged and the form still works with no
+// key, with a blocked script, or for a place Google can't find.
+let placeAutocompleteEl = null;
+
+// locality first, then postal_town, then admin_area_2. The fallbacks matter
+// for European addresses, where locality is often missing.
+function parseAddressComponents(components) {
+  const comps = components || [];
+  const find = type => comps.find(c => (c.types || []).includes(type));
+  const long = c => c ? (c.longText ?? c.long_name ?? '') : '';
+  const short = c => c ? (c.shortText ?? c.short_name ?? '') : '';
+  const city = find('locality') || find('postal_town') || find('administrative_area_level_2');
+  const country = find('country');
+  return {
+    city: long(city),
+    region: long(find('administrative_area_level_1')),
+    country: long(country),
+    country_code: short(country)
+  };
+}
+
+function setLocationFields(place, parsed) {
+  document.getElementById('tf-location_label').value =
+    place.displayName || place.formattedAddress || '';
+  document.getElementById('tf-city').value = parsed.city || '';
+  document.getElementById('tf-region').value = parsed.region || '';
+  document.getElementById('tf-country').value = parsed.country || '';
+  document.getElementById('tf-country_code').value = (parsed.country_code || '').toUpperCase();
+  const loc = place.location;
+  if (loc) {
+    document.getElementById('tf-lat').value = typeof loc.lat === 'function' ? loc.lat() : loc.lat;
+    document.getElementById('tf-lng').value = typeof loc.lng === 'function' ? loc.lng() : loc.lng;
+  }
+  showCurrentLocationLine();
+}
+
+function showCurrentLocationLine() {
+  const el = document.getElementById('tf-location-current');
+  const value = document.getElementById('tf-location_label').value;
+  if (!el || !placeAutocompleteEl) return;
+  el.style.display = value ? 'block' : 'none';
+  el.innerHTML = value ? `Selected: <b>${escHtml(value)}</b>` : '';
+}
+
+async function mountPlacesAutocomplete() {
+  if (placeAutocompleteEl || mapsKeyMissing()) return;
+  try {
+    await loadGoogleMaps();
+    const { PlaceAutocompleteElement } = await google.maps.importLibrary('places');
+    placeAutocompleteEl = new PlaceAutocompleteElement();
+    placeAutocompleteEl.id = 'tf-place-autocomplete';
+
+    const wrap = document.getElementById('tf-location-wrap');
+    wrap.insertBefore(placeAutocompleteEl, wrap.firstChild);
+    document.getElementById('tf-location_label').style.display = 'none';
+
+    placeAutocompleteEl.addEventListener('gmp-select', async ({ placePrediction }) => {
+      const place = placePrediction.toPlace();
+      // Field-level billing, so ask for exactly what gets stored
+      await place.fetchFields({
+        fields: ['id', 'displayName', 'formattedAddress', 'location', 'addressComponents']
+      });
+      document.getElementById('tf-place_id_store').value = place.id || '';
+      document.getElementById('tf-formatted_address_store').value = place.formattedAddress || '';
+      setLocationFields(place, parseAddressComponents(place.addressComponents));
+    });
+
+    showCurrentLocationLine();
+  } catch (err) {
+    // No key, blocked script, or offline: the plain input is already there
+    placeAutocompleteEl = null;
+  }
+}
+
 // ── TRIP FORM ──
 let editingTripId = null;
 
@@ -5039,6 +5624,8 @@ function openTripForm(tripId) {
   const deleteBtn = document.getElementById('trip-delete-btn');
   if (deleteBtn) deleteBtn.style.display = trip ? 'inline-flex' : 'none';
 
+  document.getElementById('tf-place_id_store').value = trip?.place_id || '';
+  document.getElementById('tf-formatted_address_store').value = trip?.formatted_address || '';
   document.getElementById('tf-location_label').value = trip?.location_label || '';
   document.getElementById('tf-start_date').value = trip?.start_date || '';
   document.getElementById('tf-end_date').value = trip?.end_date || '';
@@ -5078,6 +5665,9 @@ function openTripForm(tripId) {
     hasOverrides ? 'Hide per-person dates' : 'Different dates for someone?';
   renderAttendeeOverrideRows();
   updateTripDaysPreview();
+
+  mountPlacesAutocomplete().then(showCurrentLocationLine);
+  if (placeAutocompleteEl) { try { placeAutocompleteEl.value = ''; } catch (e) {} }
 
   document.getElementById('trip-modal').classList.add('open');
 }
@@ -5134,6 +5724,8 @@ async function saveTrip() {
     country_code:   document.getElementById('tf-country_code').value.trim().toUpperCase() || null,
     lat:            parseNum('tf-lat'),
     lng:            parseNum('tf-lng'),
+    place_id:          document.getElementById('tf-place_id_store').value || null,
+    formatted_address: document.getElementById('tf-formatted_address_store').value || null,
     notes:          document.getElementById('tf-notes').value.trim() || null,
     updated_at:     new Date().toISOString()
   };
