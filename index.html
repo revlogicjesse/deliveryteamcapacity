@@ -1535,6 +1535,17 @@
   .td-row:hover { background: #FAFAFA; }
   .td-name { font-size: 13px; font-weight: 500; color: var(--dark); }
   .td-role { font-size: 11px; color: #9CA3AF; font-weight: 400; }
+
+  /* Used to separate current from former people in the travel pickers */
+  .filter-ms-divider, .ms-divider {
+    height: 1px; background: rgba(33,42,54,0.08); margin: 6px 10px;
+  }
+  .ms-group-label {
+    font-size: 9px; font-weight: 600; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    padding: 4px 10px 2px;
+  }
+  .former-tag { color: #9CA3AF; font-weight: 400; }
   .td-track { position: relative; height: 8px; background: #F3F4F6; border-radius: 4px; }
   .td-fill { height: 100%; border-radius: 4px; background: var(--green); }
   .td-fill.over { background: var(--cyan); }
@@ -1750,6 +1761,13 @@
   }
   .tf-location-current { font-size: 11px; color: #6B7280; margin-top: 6px; }
   .tf-location-current b { color: var(--dark); font-weight: 500; }
+  .tf-location-note {
+    font-size: 11px; margin-top: 6px; color: #92400E;
+    background: #FFFBEB; border: 1px solid #FDE68A;
+    border-radius: 5px; padding: 6px 9px;
+  }
+  .tf-location-note a { color: var(--treasury); font-weight: 500; }
+  .tf-location-loading { font-size: 11px; color: #9CA3AF; margin-top: 6px; }
 
   .detail-page { display: none; animation: fadeIn 0.2s ease; }
   .detail-page.active { display: block; }
@@ -2925,7 +2943,7 @@
       <div class="form-grid thirds" style="margin-bottom:24px">
         <div class="form-field span-3">
           <label class="form-label">Trip title *</label>
-          <input class="form-input" id="tf-title" placeholder="Parloa cohort 3 kickoff">
+          <input class="form-input" id="tf-title" placeholder="Example - Factory August Boot Camp">
         </div>
         <div class="form-field">
           <label class="form-label">Account</label>
@@ -2957,10 +2975,10 @@
 
       <div class="modal-section-label">Where and when</div>
       <div class="form-grid thirds" style="margin-bottom:8px">
-        <div class="form-field span-3" id="tf-search-field" style="display:none">
+        <div class="form-field span-3" id="tf-search-field">
           <label class="form-label">Search for a place</label>
           <div id="tf-location-wrap"></div>
-          <div class="tf-location-current">Picking a result fills the Location below and captures coordinates for the map.</div>
+          <div class="tf-location-current" id="tf-location-hint">Picking a result fills the Location below and captures coordinates for the map.</div>
         </div>
         <div class="form-field span-3">
           <label class="form-label">Location *</label>
@@ -4654,11 +4672,16 @@ function populateTravelFilters() {
 
   const personDd = document.getElementById('fms-tr-person-dd');
   if (personDd) {
-    const people = allPeople.filter(p => p.status === 'Active');
-    personDd.innerHTML = people.length
-      ? people.map(p => `<div class="filter-ms-option">
+    const { active, former } = travelPeople();
+    const opt = (p, isFormer) => `<div class="filter-ms-option">
           <input type="checkbox" id="fms-tr-p-${p.id}" value="${p.id}"${keep.person.includes(p.id) ? ' checked' : ''} onchange="onTravelPersonChange()">
-          <label for="fms-tr-p-${p.id}">${escHtml(p.full_name)}</label></div>`).join('')
+          <label for="fms-tr-p-${p.id}">${escHtml(p.full_name)}${isFormer ? ' <span class="former-tag">(former)</span>' : ''}</label></div>`;
+    personDd.innerHTML = (active.length || former.length)
+      ? active.map(p => opt(p, false)).join('') +
+        (former.length
+          ? '<div class="filter-ms-divider"></div><div class="ms-group-label">Former team</div>' +
+            former.map(p => opt(p, true)).join('')
+          : '')
       : '<div class="ms-empty">No people in roster yet</div>';
   }
 
@@ -4681,15 +4704,20 @@ function populateTravelFilters() {
 
   const tdDd = document.getElementById('fms-td-person-dd');
   if (tdDd) {
-    const people = allPeople.filter(p => p.status === 'Active');
+    const { active, former, all } = travelPeople();
     // First build picks the default cohort. After that the user's choice sticks.
     const keepTd = travelDaysCohortTouched
       ? getFilterMSValues('fms-td-person-dd')
-      : people.filter(isDefaultTravelDaysPerson).map(p => p.id);
-    tdDd.innerHTML = people.length
-      ? people.map(p => `<div class="filter-ms-option">
+      : all.filter(isDefaultTravelDaysPerson).map(p => p.id);
+    const opt = (p, isFormer) => `<div class="filter-ms-option">
           <input type="checkbox" id="fms-td-p-${p.id}" value="${p.id}"${keepTd.includes(p.id) ? ' checked' : ''} onchange="onTravelDaysPeopleChange()">
-          <label for="fms-td-p-${p.id}">${escHtml(p.full_name)}</label></div>`).join('')
+          <label for="fms-td-p-${p.id}">${escHtml(p.full_name)}${isFormer ? ' <span class="former-tag">(former)</span>' : ''}</label></div>`;
+    tdDd.innerHTML = all.length
+      ? active.map(p => opt(p, false)).join('') +
+        (former.length
+          ? '<div class="filter-ms-divider"></div><div class="ms-group-label">Former team</div>' +
+            former.map(p => opt(p, true)).join('')
+          : '')
       : '<div class="ms-empty">No people in roster yet</div>';
     updateTravelDaysTrigger();
   }
@@ -4711,26 +4739,48 @@ function populateTravelFilters() {
 
 let travelDaysCohortTouched = false;
 
+// A former team member's trips still happened, so travel is the one place
+// Inactive does not remove someone. Everywhere else in the app (capacity,
+// account assignment, engagement leads) Inactive still means gone.
+function hasTravelHistory(personId) {
+  return allTripAttendees.some(a => a.person_id === personId);
+}
+
+function isFormerWithTravel(person) {
+  return person.status !== 'Active' && hasTravelHistory(person.id);
+}
+
+// Active people first, then former people who travelled. Callers that need the
+// split render a divider between the two groups.
+function travelPeople() {
+  const active = allPeople.filter(p => p.status === 'Active');
+  const former = allPeople.filter(isFormerWithTravel);
+  return { active, former, all: active.concat(former) };
+}
+
 function isDefaultTravelDaysPerson(person) {
+  // Former team members are always in the default cohort. Their days count
+  // toward the team total and the average, so a past quarter still adds up.
   return TRAVEL_DAYS_DEFAULT_ROLES.includes(person.role)
-      || TRAVEL_DAYS_ALWAYS_INCLUDE.includes(person.full_name);
+      || TRAVEL_DAYS_ALWAYS_INCLUDE.includes(person.full_name)
+      || isFormerWithTravel(person);
 }
 
 function updateTravelDaysTrigger() {
   const ids = getFilterMSValues('fms-td-person-dd');
-  const active = allPeople.filter(p => p.status === 'Active');
+  const eligible = travelPeople().all;
   const trigger = document.getElementById('fms-td-person-trigger');
   if (!trigger) return;
   if (!ids.length) {
     trigger.textContent = 'Nobody selected';
-  } else if (ids.length === active.length) {
+  } else if (ids.length === eligible.length) {
     trigger.textContent = 'Everyone';
   } else if (ids.length === 1) {
     trigger.textContent = personName(ids[0]);
   } else {
     trigger.textContent = ids.length + ' people';
   }
-  trigger.classList.toggle('active', ids.length !== active.length);
+  trigger.classList.toggle('active', ids.length !== eligible.length);
 }
 
 function onTravelDaysPeopleChange() {
@@ -5350,15 +5400,15 @@ function renderTravelDaysByPerson() {
   const legend = document.getElementById('td-legend');
   if (!list) return;
 
-  const activePeople = allPeople.filter(p => p.status === 'Active');
+  const eligible = travelPeople().all;
   const cohortIds = getFilterMSValues('fms-td-person-dd');
-  const cohort = activePeople.filter(p => cohortIds.includes(p.id));
+  const cohort = eligible.filter(p => cohortIds.includes(p.id));
 
   // The page-level person filter is an explicit choice, so it wins for which
   // rows appear. Otherwise the section's own cohort decides.
   const globalSelected = getFilterMSValues('fms-tr-person-dd');
   const shown = globalSelected.length
-    ? activePeople.filter(p => globalSelected.includes(p.id))
+    ? eligible.filter(p => globalSelected.includes(p.id))
     : cohort;
 
   const totals = personDayTotals(notCancelled(filteredTrips()));
@@ -5392,7 +5442,7 @@ function renderTravelDaysByPerson() {
     return `<div class="td-row">
       <div>
         <div class="td-name">${escHtml(r.person.full_name)}</div>
-        <div class="td-role">${escHtml(r.person.role) || '\u2013'}</div>
+        <div class="td-role">${escHtml(r.person.role) || '\u2013'}${isFormerWithTravel(r.person) ? ' \u00b7 former' : ''}</div>
       </div>
       <div class="td-track">
         <div class="td-fill ${cls}" style="width:${pct.toFixed(1)}%"></div>
@@ -5692,17 +5742,67 @@ function setLocationFields(place, parsed) {
 // separate to echo back.
 function showCurrentLocationLine() {}
 
+// The place search is an assist, never a gate: Location stays typeable in every
+// one of these states. What it must not do is fail silently, which is what it
+// did before.
+function setPlaceSearchState(state, detail) {
+  const hint = document.getElementById('tf-location-hint');
+  if (!hint) return;
+  if (state === 'ready') {
+    hint.className = 'tf-location-current';
+    hint.textContent = 'Picking a result fills the Location below and captures coordinates for the map.';
+  } else if (state === 'loading') {
+    hint.className = 'tf-location-loading';
+    hint.textContent = 'Loading place search\u2026';
+  } else if (state === 'nokey') {
+    hint.className = 'tf-location-note';
+    hint.textContent = 'Place search is off until a Google Maps key is set. Type the location below instead.';
+  } else {
+    hint.className = 'tf-location-note';
+    hint.innerHTML = 'Place search could not load' +
+      (detail ? ' (' + escHtml(String(detail)) + ')' : '') +
+      '. Type the location below instead, or <a href="#" id="tf-location-retry" ' +
+      'onclick="retryPlaceSearch();return false;">try again</a>.';
+  }
+}
+
+// loadGoogleMaps memoizes its promise, rejections included, so without this a
+// single failed load would keep the search dead for the whole session.
+function retryPlaceSearch() {
+  googleMapsPromise = null;
+  placeAutocompleteEl = null;
+  mountPlacesAutocomplete();
+}
+
+// Building a fresh widget must not leave the old one behind, or a retry stacks
+// two search boxes in the form.
+function clearPlaceSearchWrap() {
+  const wrap = document.getElementById('tf-location-wrap');
+  if (wrap) wrap.innerHTML = '';
+}
+
 async function mountPlacesAutocomplete() {
-  if (placeAutocompleteEl || mapsKeyMissing()) return;
+  if (mapsKeyMissing()) { setPlaceSearchState('nokey'); return; }
+
+  // The element is built once and reused across opens. If it ever gets
+  // detached from the DOM, put it back rather than showing an empty field.
+  if (placeAutocompleteEl) {
+    const wrap = document.getElementById('tf-location-wrap');
+    if (wrap && !wrap.contains(placeAutocompleteEl)) wrap.appendChild(placeAutocompleteEl);
+    setPlaceSearchState('ready');
+    return;
+  }
+
+  setPlaceSearchState('loading');
   try {
     await loadGoogleMaps();
     const { PlaceAutocompleteElement } = await google.maps.importLibrary('places');
     placeAutocompleteEl = new PlaceAutocompleteElement();
     placeAutocompleteEl.id = 'tf-place-autocomplete';
 
+    clearPlaceSearchWrap();
     const wrap = document.getElementById('tf-location-wrap');
     wrap.appendChild(placeAutocompleteEl);
-    document.getElementById('tf-search-field').style.display = '';
 
     placeAutocompleteEl.addEventListener('gmp-select', async ({ placePrediction }) => {
       const place = placePrediction.toPlace();
@@ -5725,9 +5825,13 @@ async function mountPlacesAutocomplete() {
       const target = document.getElementById('tf-location_label');
       if (typed && !target.value.trim()) target.value = typed;
     });
+    setPlaceSearchState('ready');
   } catch (err) {
-    // No key, blocked script, or offline: the plain input is already there
+    // Logged with the real error so an ApiNotActivatedMapError (Cloud config)
+    // can be told apart from a transient network failure (code is fine).
+    console.error('[travel] place search failed to load:', err);
     placeAutocompleteEl = null;
+    setPlaceSearchState('failed', err && err.message);
   }
 }
 
@@ -5792,16 +5896,26 @@ function buildTripStatusOptions(selected) {
 function buildTripAttendeeCheckboxes(selectedIds) {
   const selected = selectedIds || [];
   const container = document.getElementById('tf-attendee-checkboxes');
-  const people = allPeople.filter(p => p.status === 'Active');
-  if (!people.length) {
-    container.innerHTML = '<div class="ms-empty">No people in roster yet</div>';
-  } else {
-    container.innerHTML = people.map(p => `
+  const active = allPeople.filter(p => p.status === 'Active');
+  // saveTrip replaces the whole attendee set from these boxes. A former team
+  // member already on this trip must therefore still have a box, or editing
+  // anything else about the trip would quietly remove them from it. They are
+  // not offered for trips they are not already on.
+  const former = allPeople.filter(p => p.status !== 'Active' && selected.includes(p.id));
+  // No per-input onchange: #tf-att-dd already has one and change events bubble.
+  const opt = (p, isFormer) => `
       <div class="ms-option">
         <input type="checkbox" id="tf-att-${p.id}" value="${p.id}"${selected.includes(p.id) ? ' checked' : ''}>
-        <label for="tf-att-${p.id}">${escHtml(p.full_name)}</label>
-      </div>
-    `).join('');
+        <label for="tf-att-${p.id}">${escHtml(p.full_name)}${isFormer ? ' <span class="former-tag">(former)</span>' : ''}</label>
+      </div>`;
+  if (!active.length && !former.length) {
+    container.innerHTML = '<div class="ms-empty">No people in roster yet</div>';
+  } else {
+    container.innerHTML = active.map(p => opt(p, false)).join('') +
+      (former.length
+        ? '<div class="ms-divider"></div><div class="ms-group-label">Former team</div>' +
+          former.map(p => opt(p, true)).join('')
+        : '');
   }
   updateTripAttendeeTrigger();
 }
