@@ -1839,6 +1839,59 @@
     gap: 14px;
   }
 
+  /* ── ACCOUNT TRAVEL ── */
+  .at-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .at-stat {
+    background: #FAFBFC;
+    border: var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .at-stat-label {
+    font-size: 10px; font-weight: 600; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 5px;
+  }
+  .at-stat-value {
+    font-size: 20px; font-weight: 600; color: var(--dark);
+    letter-spacing: -0.3px; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .at-stat-value.cyan { color: var(--cyan); }
+  .at-stat-sub { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+
+  .at-table { width: 100%; border-collapse: collapse; }
+  .at-table th {
+    font-size: 10px; font-weight: 600; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 8px 10px; text-align: left;
+    border-bottom: var(--border); white-space: nowrap;
+  }
+  .at-table td {
+    font-size: 13px; color: var(--dark);
+    padding: 10px; border-bottom: 1px solid rgba(33,42,54,0.06);
+    vertical-align: top;
+  }
+  .at-table tr:last-child td { border-bottom: none; }
+  .at-table tbody tr { cursor: pointer; }
+  .at-table tbody tr:hover { background: #FAFAFA; }
+  .at-table tr.trip-cancelled td { opacity: 0.55; }
+  .at-dates {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .at-where { font-size: 11px; color: #6B7280; margin-top: 2px; }
+  .at-who { font-size: 12px; color: #6B7280; }
+  .at-empty { padding: 20px 0; text-align: center; font-size: 13px; color: #9CA3AF; }
+
+  @media (max-width: 1000px) {
+    .at-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
   .detail-field-grid.single { grid-template-columns: 1fr; }
   .detail-field-grid.thirds { grid-template-columns: 1fr 1fr 1fr; }
 
@@ -2711,6 +2764,30 @@
               <span class="detail-ws-tao-value" id="detail-tao-value">–</span>
             </div>
           </div>
+        </div>
+
+        <div class="detail-section" style="margin-top:20px">
+          <div class="detail-section-title">
+            <span>Travel <span id="at-count" style="color:#9CA3AF;font-weight:500;text-transform:none;letter-spacing:0">&nbsp;</span></span>
+            <button class="btn-secondary" style="font-size:11px;padding:3px 10px;font-weight:500" onclick="addTripForAccount()">+ Add trip</button>
+          </div>
+          <div class="at-stats" id="at-stats"></div>
+          <div style="overflow-x:auto">
+            <table class="at-table" id="at-table" style="display:none">
+              <thead>
+                <tr>
+                  <th style="width:15%">Dates</th>
+                  <th style="width:6%">Days</th>
+                  <th style="width:30%">Trip</th>
+                  <th style="width:15%">Purpose</th>
+                  <th style="width:22%">Who went</th>
+                  <th style="width:12%">Status</th>
+                </tr>
+              </thead>
+              <tbody id="at-tbody"></tbody>
+            </table>
+          </div>
+          <div class="at-empty" id="at-empty">No trips logged for this account yet.</div>
         </div>
 
       </div><!-- /account detail -->
@@ -3769,8 +3846,99 @@ function openAccountDetail(id) {
 
   renderDetailEngagements(id);
   renderDetailWhitespace(id);
+  renderDetailTravel(id);
   loadContacts(id);
   window.scrollTo(0, 0);
+}
+
+// ── ACCOUNT TRAVEL ──
+// Everything for this account, cancelled trips included so the record is
+// complete. The stat row ignores cancelled, matching the rest of the module.
+function renderDetailTravel(accountId) {
+  const tbody = document.getElementById('at-tbody');
+  const table = document.getElementById('at-table');
+  const empty = document.getElementById('at-empty');
+  const stats = document.getElementById('at-stats');
+  const count = document.getElementById('at-count');
+  if (!tbody) return;
+
+  const trips = allTrips
+    .filter(t => t.account_id === accountId)
+    .sort((a, b) => (b.start_date || '').localeCompare(a.start_date || ''));
+
+  if (!trips.length) {
+    table.style.display = 'none';
+    empty.style.display = '';
+    stats.innerHTML = '';
+    count.textContent = '\u00a0';
+    return;
+  }
+
+  table.style.display = '';
+  empty.style.display = 'none';
+  count.textContent = `\u00b7 ${trips.length} ${trips.length === 1 ? 'trip' : 'trips'}`;
+
+  // Stats exclude cancelled trips, and are not touched by the Travel page filters
+  const live = trips.filter(t => t.status !== 'Cancelled');
+  const days = live.reduce((sum, t) =>
+    sum + tripAttendeesFor(t.id).reduce((s, a) => s + attendeeDays(a, t), 0), 0);
+  const people = new Set();
+  live.forEach(t => tripAttendeesFor(t.id).forEach(a => people.add(a.person_id)));
+
+  const today = todayIso();
+  const past = live.filter(t => t.end_date < today).map(t => t.end_date).sort();
+  const lastVisit = past.length ? past[past.length - 1] : null;
+  const daysSince = lastVisit ? daysApart(lastVisit, today) : null;
+  const upcoming = live.filter(t => t.end_date >= today).length;
+
+  let cadence;
+  if (!lastVisit) cadence = upcoming ? 'upcoming only' : 'never visited';
+  else if (daysSince > 90) cadence = `${daysSince} days ago`;
+  else cadence = `${daysSince} days ago`;
+
+  stats.innerHTML = `
+    <div class="at-stat">
+      <div class="at-stat-label">Trips</div>
+      <div class="at-stat-value">${live.length}</div>
+      <div class="at-stat-sub">${upcoming ? upcoming + ' upcoming' : 'none upcoming'}</div>
+    </div>
+    <div class="at-stat">
+      <div class="at-stat-label">Travel days</div>
+      <div class="at-stat-value cyan">${days}</div>
+      <div class="at-stat-sub">Person-days</div>
+    </div>
+    <div class="at-stat">
+      <div class="at-stat-label">People</div>
+      <div class="at-stat-value">${people.size}</div>
+      <div class="at-stat-sub">Have been on site</div>
+    </div>
+    <div class="at-stat">
+      <div class="at-stat-label">Last visit</div>
+      <div class="at-stat-value" style="font-size:15px;padding-top:3px">${lastVisit ? escHtml(formatDate(lastVisit)) : '\u2013'}</div>
+      <div class="at-stat-sub">${cadence}</div>
+    </div>`;
+
+  tbody.innerHTML = trips.map(t => {
+    const who = tripAttendeesFor(t.id).map(a => personName(a.person_id)).join(', ');
+    const place = tripPlaceLabel(t);
+    const cancelled = t.status === 'Cancelled' ? ' class="trip-cancelled"' : '';
+    return `<tr${cancelled} onclick="openTripForm('${t.id}')">
+      <td class="at-dates">${escHtml(formatTripDates(t))}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${tripDays(t)}</td>
+      <td>
+        <div style="font-weight:500">${escHtml(t.title) || escHtml(place) || '\u2013'}</div>
+        ${t.title && place ? `<div class="at-where">${escHtml(place)}</div>` : ''}
+      </td>
+      <td><span class="trip-badge ${purposeToClass(t.purpose)}">${escHtml(t.purpose) || '\u2013'}</span></td>
+      <td class="at-who">${escHtml(who) || '\u2013'}</td>
+      <td><span class="trip-badge ${tripStatusToClass(t.status)}">${escHtml(t.status) || 'Planned'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function addTripForAccount() {
+  if (!currentDetailAccountId) return;
+  openTripForm(null, currentDetailAccountId);
 }
 
 function openAccount(id) { openAccountDetail(id); }
@@ -5699,9 +5867,11 @@ function renderAttendeeOverrideRows() {
 
 let tripFormOverrideSeed = {};
 
-function openTripForm(tripId) {
+function openTripForm(tripId, presetAccountId) {
   const trip = tripId ? allTrips.find(t => t.id === tripId) : null;
   editingTripId = trip ? trip.id : null;
+  // Adding from an account page pre-selects that account
+  const accountId = trip?.account_id || presetAccountId || '';
 
   document.getElementById('trip-modal-title').textContent = trip ? 'Edit trip' : 'Add trip';
   document.getElementById('trip-modal-sub').textContent = trip ? formatTripDates(trip) : '';
@@ -5723,8 +5893,8 @@ function openTripForm(tripId) {
   document.getElementById('tf-country').value = trip?.country || '';
   document.getElementById('tf-country_code').value = trip?.country_code || '';
 
-  buildTripAccountOptions(trip?.account_id || '');
-  buildTripEngagementOptions(trip?.account_id || '', trip?.engagement_id || null);
+  buildTripAccountOptions(accountId);
+  buildTripEngagementOptions(accountId, trip?.engagement_id || null);
   buildTripPurposeOptions(trip?.purpose || '');
   buildTripStatusOptions(trip?.status || 'Planned');
 
@@ -5858,9 +6028,11 @@ async function saveTrip() {
   if (insError) { restoreBtn(); alert('Error saving attendees: ' + insError.message); return; }
 
   restoreBtn();
+  const wasEditing = editingTripId;
   closeTripForm();
   await Promise.all([loadTrips(), loadTripAttendees()]);
-  showToast(editingTripId ? 'Trip updated' : 'Trip added');
+  if (currentDetailAccountId) renderDetailTravel(currentDetailAccountId);
+  showToast(wasEditing ? 'Trip updated' : 'Trip added');
 }
 
 async function deleteTripFromModal() {
@@ -5874,6 +6046,7 @@ async function deleteTripFromModal() {
   allTripAttendees = allTripAttendees.filter(a => a.trip_id !== editingTripId);
   closeTripForm();
   renderTravel();
+  if (currentDetailAccountId) renderDetailTravel(currentDetailAccountId);
   showToast('Trip deleted');
 }
 
