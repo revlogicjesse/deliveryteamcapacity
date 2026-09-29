@@ -422,7 +422,7 @@
 
   .breakdown-eng-row {
     display: grid;
-    grid-template-columns: 180px 150px 1fr 120px 48px;
+    grid-template-columns: 180px 130px 1fr auto;
     gap: 8px;
     align-items: center;
     padding: 8px 0;
@@ -434,23 +434,21 @@
   .breakdown-eng-name { font-weight: 600; color: var(--dark); }
   .breakdown-eng-account { color: #6B7280; font-size: 11px; margin-top: 1px; }
 
-  .breakdown-team {
+  .breakdown-formula {
     display: flex;
     align-items: center;
+    gap: 4px;
     flex-wrap: wrap;
-    gap: 2px 6px;
-    font-size: 11px;
-    color: var(--dark);
-  }
-  .breakdown-team .t-role { color: #9CA3AF; }
-  .breakdown-team .t-name { font-weight: 500; }
-  .breakdown-team .t-sep { color: #D1D5DB; }
-  .breakdown-team .t-none { color: #9CA3AF; font-style: italic; }
-  .breakdown-end {
-    font-size: 11px;
     color: #6B7280;
-    white-space: nowrap;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
   }
+  .breakdown-formula .f-base { color: var(--dark); font-weight: 600; }
+  .breakdown-formula .f-op { color: #9CA3AF; }
+  .breakdown-formula .f-mod { color: var(--cyan); }
+  .breakdown-formula .f-red { color: #EF4444; }
+  .breakdown-formula .f-result { color: var(--green); font-weight: 700; font-size: 12px; }
+  .breakdown-formula .f-flat { color: #6B7280; font-style: italic; }
 
   .breakdown-slots {
     text-align: right;
@@ -2855,7 +2853,12 @@
         </div>
         <div class="form-field">
           <label class="form-label">Scope</label>
-          <select class="form-select" id="ef-scope"></select>
+          <select class="form-select" id="ef-scope">
+            <option value="">Select...</option>
+            <option>Heavy 1.5</option>
+            <option>Standard 1.0</option>
+            <option>Light 0.5</option>
+          </select>
         </div>
         <div class="form-field">
           <label class="form-label">Contract value</label>
@@ -2887,13 +2890,10 @@
           </select>
         </div>
         <div class="form-field">
-          <label class="form-label">Support AM and scope</label>
-          <div style="display:flex;gap:8px">
-            <select class="form-select" id="ef-support_am" style="flex:1;min-width:0" onchange="syncSupportScope('ef-support_am','ef-support_scope')">
-              <option value="">Select...</option>
-            </select>
-            <select class="form-select" id="ef-support_scope" style="width:84px;flex:none" title="Support AM scope"></select>
-          </div>
+          <label class="form-label">Support AM</label>
+          <select class="form-select" id="ef-support_am">
+            <option value="">Select...</option>
+          </select>
         </div>
         <div class="form-field">
           <label class="form-label">LXD assigned</label>
@@ -3469,7 +3469,7 @@ function updateStats() {
   const capacityPeople = allPeople.filter(p => p.status === 'Active' && capacityRoles.includes(p.role));
   const totalMax = capacityPeople.reduce((sum, p) => sum + (parseFloat(p.max_slots) || 0), 0);
   const totalUsed = capacityPeople.reduce((sum, p) => sum + calcSlotsForPerson(p.full_name), 0);
-  const capacityStr = totalMax > 0 ? `${totalUsed.toFixed(2)} / ${totalMax.toFixed(1)}` : '–';
+  const capacityStr = totalMax > 0 ? `${totalUsed.toFixed(1)} / ${totalMax.toFixed(1)}` : '–';
 
   document.getElementById('stat-accounts').textContent = activeAccounts;
   document.getElementById('stat-capacity').textContent = capacityStr;
@@ -3478,72 +3478,62 @@ function updateStats() {
 }
 
 // ── SLOT CALCULATION ──
-// Manual scope model (Sept 2026). Per engagement:
-//   Lead AM carries the engagement's scope.
-//   Support AM carries the engagement's support scope.
-//   No phase weighting and no resource reductions.
-//   Closed phases (On Hold / Cancelled, Complete) and a blank phase carry no load.
-//   Engagements with no start date, or a future start date, carry no load.
-// If one person is both Lead and Support, they carry both scopes.
+// Derives effective slots for a named person from allEngagements directly.
+// Formula per engagement:
+//   base = scope weight (Heavy=1.5, Standard=1.0, Light=0.5, else 1.0)
+//   phase modifier applied to base
+//   resource reductions: −0.25 Support AM, −0.5 LXD, −0.25 any Specialists
+//   minimum 0 per engagement
+// Lead AM gets full (base × phase) minus reductions.
+// Support AM gets flat 0.25 regardless of scope/phase.
 
-const SCOPE_OPTIONS = [0.25, 0.5, 1, 1.5, 2, 3, 4];
-const DEFAULT_SCOPE = 1;
-const DEFAULT_SUPPORT_SCOPE = 0.25;
-const CLOSED_PHASES = ['On Hold / Cancelled', 'Complete'];
-
-function scopeNum(v, fallback) {
-  const n = parseFloat(v);
-  return Number.isFinite(n) ? n : fallback;
-}
-function fmtScope(v) {
-  const n = parseFloat(v);
-  return Number.isFinite(n) ? String(n) : '';
-}
-function scopeOptionsHtml(selected, placeholder = 'Select...') {
-  const sel = fmtScope(selected);
-  return `<option value="">${placeholder}</option>` +
-    SCOPE_OPTIONS.map(o => `<option value="${o}"${String(o) === sel ? ' selected' : ''}>${o}</option>`).join('');
-}
-function isLoadBearing(e) {
-  if (!e.start_date) return false;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const start = new Date(e.start_date + 'T00:00:00');
-  if (start > today) return false;
-  const phase = e.phase || '';
-  return !!phase && !CLOSED_PHASES.includes(phase);
-}
-function engagementSlotsFor(e, personName) {
-  if (!isLoadBearing(e)) return 0;
-  let slots = 0;
-  if (e.lead_am === personName) slots += scopeNum(e.scope, DEFAULT_SCOPE);
-  if (e.support_am === personName) slots += scopeNum(e.support_scope, DEFAULT_SUPPORT_SCOPE);
-  return slots;
-}
+const SCOPE_WEIGHTS = { 'Heavy 1.5': 1.5, 'Standard 1.0': 1.0, 'Light 0.5': 0.5 };
+const PHASE_MODIFIERS = {
+  'Scoping': 1.0,
+  'Build': 1.0,
+  'Active delivery': 1.0,
+  'Maintenance / embedding': 0.5,
+  'Wind-down': 0.25,
+  'On Hold / Cancelled': 0,
+  'Complete': 0,
+};
 
 function calcSlotsForPerson(personName) {
-  return allEngagements.reduce((t, e) => t + engagementSlotsFor(e, personName), 0);
-}
+  let total = 0;
+  const today = new Date(); today.setHours(0,0,0,0);
 
-// Local-time date label for YYYY-MM-DD strings (avoids the UTC day shift)
-function formatEndDate(str) {
-  if (!str) return 'No end date';
-  const d = new Date(str + 'T00:00:00');
-  return 'Ends ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
+  allEngagements.forEach(e => {
+    // Exclude engagements with no start date or a future start date
+    if (!e.start_date) return;
+    const start = new Date(e.start_date); start.setHours(0,0,0,0);
+    if (start > today) return;
 
-// Everyone else on the engagement, from the point of view of personName
-function otherTeamHtml(e, personName) {
-  const parts = [];
-  const add = (label, names) => {
-    const list = names.filter(n => n && n !== personName);
-    if (list.length) parts.push(`<span class="t-role">${label}</span> <span class="t-name">${list.join(', ')}</span>`);
-  };
-  add('Lead', [e.lead_am]);
-  add('Support', [e.support_am]);
-  add('LXD', [e.lxd_assigned]);
-  add(e.specialists_assigned && e.specialists_assigned.includes(',') ? 'Specialists' : 'Specialist',
-      (e.specialists_assigned || '').split(',').map(x => x.trim()));
-  return parts.length ? parts.join('<span class="t-sep">·</span>') : '<span class="t-none">No one else assigned</span>';
+    const phase = e.phase || '';
+    const phaseMod = PHASE_MODIFIERS[phase] ?? 0;
+    if (phaseMod === 0) return; // On Hold / Cancelled / Complete — no load
+
+    const isLead = e.lead_am === personName;
+    const isSupport = e.support_am === personName;
+    if (!isLead && !isSupport) return;
+
+    if (isSupport) {
+      total += 0.25;
+      return;
+    }
+
+    // Lead AM calculation
+    const base = SCOPE_WEIGHTS[e.scope] ?? 1.0;
+    let slots = base * phaseMod;
+
+    // Resource reductions
+    if (e.support_am) slots -= 0.25;
+    if (e.lxd_assigned) slots -= 0.5;
+    if (e.specialists_assigned) slots -= 0.25;
+
+    total += Math.max(0, slots);
+  });
+
+  return total;
 }
 
 // ── CAPACITY ──
@@ -3568,8 +3558,14 @@ function renderCapacity() {
     const safeId = person.full_name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
 
     // Build breakdown rows
-    const personEngagements = allEngagements.filter(e =>
-      isLoadBearing(e) && (e.lead_am === person.full_name || e.support_am === person.full_name));
+    const today = new Date(); today.setHours(0,0,0,0);
+    const personEngagements = allEngagements.filter(e => {
+      if (!e.start_date) return false;
+      const start = new Date(e.start_date); start.setHours(0,0,0,0);
+      if (start > today) return false;
+      const phaseMod = PHASE_MODIFIERS[e.phase || ''] ?? 0;
+      return phaseMod !== 0 && (e.lead_am === person.full_name || e.support_am === person.full_name);
+    });
 
     let breakdownHtml = '';
     if (!personEngagements.length) {
@@ -3577,20 +3573,44 @@ function renderCapacity() {
     } else {
       breakdownHtml = personEngagements.map(e => {
         const accountName = e.accounts?.account_name || '–';
+        const isSupport = e.support_am === person.full_name && e.lead_am !== person.full_name;
         const phase = e.phase || '';
-        const isLead = e.lead_am === person.full_name;
-        const isSupport = e.support_am === person.full_name;
-        const roleLabel = isLead && isSupport ? 'Lead + Support' : isLead ? 'Lead' : 'Support';
-        const engSlots = engagementSlotsFor(e, person.full_name);
+        const phaseMod = PHASE_MODIFIERS[phase] ?? 0;
+        const base = SCOPE_WEIGHTS[e.scope] ?? 1.0;
+        let formulaHtml = '';
+        let engSlots = 0;
+
+        if (isSupport) {
+          engSlots = 0.25;
+          formulaHtml = `<span class="f-flat">Support AM — flat 0.25 slots</span>`;
+        } else {
+          // Lead AM formula
+          const raw = base * phaseMod;
+          const reductions = [];
+          let reduced = raw;
+          if (e.support_am) { reduced -= 0.25; reductions.push('<span class="f-red">−0.25 support</span>'); }
+          if (e.lxd_assigned) { reduced -= 0.5;  reductions.push('<span class="f-red">−0.5 LXD</span>'); }
+          if (e.specialists_assigned) { reduced -= 0.25; reductions.push('<span class="f-red">−0.25 specialist</span>'); }
+          engSlots = Math.max(0, reduced);
+
+          formulaHtml  = `<span class="f-base">${base}</span>`;
+          formulaHtml += `<span class="f-op"> (scope) </span>`;
+          formulaHtml += `<span class="f-op">×</span>`;
+          formulaHtml += `<span class="f-mod"> ${phaseMod}</span>`;
+          formulaHtml += `<span class="f-op"> (${phase.toLowerCase()}) </span>`;
+          if (reductions.length) {
+            formulaHtml += reductions.join(' ');
+          }
+          formulaHtml += ` <span class="f-op">= </span><span class="f-result">${engSlots.toFixed(2)}</span>`;
+        }
 
         return `<div class="breakdown-eng-row" style="cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F0FBF5'" onmouseleave="this.style.background=''" onclick="openEngagementForm(${JSON.stringify(e).replace(/"/g,'&quot;')},null,null)">
           <div>
             <div class="breakdown-eng-name">${e.rev_program || '–'}</div>
-            <div class="breakdown-eng-account">${accountName} · ${roleLabel}</div>
+            <div class="breakdown-eng-account">${accountName}</div>
           </div>
           <div><span class="phase-badge ${phaseToClass(phase)}" style="font-size:10px">${phase || '–'}</span></div>
-          <div class="breakdown-team">${otherTeamHtml(e, person.full_name)}</div>
-          <div class="breakdown-end">${formatEndDate(e.target_end_date)}</div>
+          <div class="breakdown-formula">${formulaHtml}</div>
           <div class="breakdown-slots">${engSlots.toFixed(2)}</div>
         </div>`;
       }).join('');
@@ -3603,7 +3623,7 @@ function renderCapacity() {
         </svg>
         <div class="capacity-name">${person.full_name}<span style="font-size:11px;color:#9CA3AF;margin-left:8px">${person.role}</span></div>
         <div class="capacity-bar-wrap"><div class="capacity-bar ${barClass}" style="width:${pct}%"></div></div>
-        <div class="capacity-slots">${usedSlots.toFixed(2)} / ${maxSlots} slots</div>
+        <div class="capacity-slots">${usedSlots.toFixed(1)} / ${maxSlots} slots</div>
       </div>
       <div class="capacity-breakdown" id="breakdown-${safeId}">
         ${breakdownHtml}
@@ -3666,7 +3686,7 @@ function renderRecentLists() {
       return `<div onclick="openAccountDetailWithEngagement('${e.account_id}','${e.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(33,42,54,0.05);cursor:pointer;transition:background 0.12s;" onmouseenter="this.style.background='#F9FAFB'" onmouseleave="this.style.background=''">
         <div>
           <div style="font-size:13px;font-weight:600;color:#212A36">${e.accounts?.account_name || '–'}</div>
-          <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${e.rev_program || '–'} · Scope ${fmtScope(e.scope) || '–'}</div>
+          <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${e.rev_program || '–'} · ${e.scope || '–'}</div>
         </div>
         <span class="phase-badge ${phaseClass}" style="font-size:10px">${e.phase || '–'}</span>
       </div>`;
@@ -4033,7 +4053,7 @@ function renderDetailEngagements(accountId) {
     return `<div class="detail-eng-row" data-engagement-id="${e.id}">
       <div>
         <div class="detail-eng-name">${e.rev_program || '–'}</div>
-        <div class="detail-eng-meta">${[fmtScope(e.scope) ? 'Scope ' + fmtScope(e.scope) : '', e.lead_am, cv].filter(Boolean).join(' · ')}</div>
+        <div class="detail-eng-meta">${[e.scope, e.lead_am, cv].filter(Boolean).join(' · ')}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="phase-badge ${phaseClass}" style="font-size:10px">${e.phase || '–'}</span>
@@ -4224,7 +4244,7 @@ function renderEngagements(engagements) {
       <td><strong>${accountName}</strong></td>
       <td>${e.rev_program || '–'}</td>
       <td><span class="phase-badge ${phaseClass}">${e.phase || '–'}</span></td>
-      <td style="font-size:12px">${fmtScope(e.scope) || '–'}</td>
+      <td style="font-size:12px">${e.scope || '–'}</td>
       <td style="font-size:12px">${e.lead_am || '–'}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px">${cv}</td>
       <td style="font-size:12px;color:#6B7280">${start}</td>
@@ -5208,7 +5228,10 @@ function mapsKeyMissing() {
 // Clears the memoized failure so a corrected key can be picked up without a reload
 function retryGoogleMaps() {
   googleMapsPromise = null;
+  gmaps = null;
   travelMap = null;
+  travelInfoWindow = null;
+  travelMarkers = [];
   renderMap();
 }
 
@@ -5225,6 +5248,34 @@ function loadGoogleMaps() {
     document.head.appendChild(s);
   });
   return googleMapsPromise;
+}
+
+// Everything the map draws with, resolved through importLibrary. Memoized: the
+// libraries only need importing once per session.
+let gmaps = null;
+
+async function ensureMapsLibraries() {
+  if (gmaps) return gmaps;
+  const [core, maps, marker] = await Promise.all([
+    google.maps.importLibrary('core'),
+    google.maps.importLibrary('maps'),
+    google.maps.importLibrary('marker')
+  ]);
+  const merged = Object.assign({}, core, maps, marker);
+
+  // importLibrary also attaches to the google.maps namespace, so fall back to it
+  // for anything a library did not hand back directly.
+  ['Map', 'InfoWindow', 'Marker', 'LatLngBounds', 'SymbolPath'].forEach(k => {
+    if (!merged[k] && google.maps[k]) merged[k] = google.maps[k];
+  });
+
+  // Fail loudly and by name rather than throwing "not a constructor" later
+  const missing = ['Map', 'InfoWindow', 'Marker', 'LatLngBounds', 'SymbolPath']
+    .filter(k => !merged[k]);
+  if (missing.length) throw new Error('Maps libraries missing: ' + missing.join(', '));
+
+  gmaps = merged;
+  return gmaps;
 }
 
 function mapMarkerScale(count) {
@@ -5255,7 +5306,7 @@ function renderMap() {
     shell.innerHTML = '<div id="travel-map"></div>';
   }
 
-  loadGoogleMaps().then(() => drawMapMarkers()).catch(err => {
+  loadGoogleMaps().then(ensureMapsLibraries).then(() => drawMapMarkers()).catch(err => {
     shell.innerHTML = `<div class="map-empty">
       <h4>Couldn't load Google Maps</h4>
       <p>${err.message === 'load-failed' ? 'The script failed to load. Check the key restrictions in Google Cloud, particularly the HTTP referrer.' : escHtml(err.message)}</p>
@@ -5266,17 +5317,17 @@ function renderMap() {
 
 function drawMapMarkers() {
   const el = document.getElementById('travel-map');
-  if (!el || !window.google?.maps) return;
+  if (!el || !gmaps) return;
 
   if (!travelMap) {
-    travelMap = new google.maps.Map(el, {
+    travelMap = new gmaps.Map(el, {
       center: { lat: 39.5, lng: -98.35 },
       zoom: 4,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false
     });
-    travelInfoWindow = new google.maps.InfoWindow();
+    travelInfoWindow = new gmaps.InfoWindow();
   }
 
   travelMarkers.forEach(m => m.setMap(null));
@@ -5296,16 +5347,16 @@ function drawMapMarkers() {
     places[key].trips.push(t);
   });
 
-  const bounds = new google.maps.LatLngBounds();
+  const bounds = new gmaps.LatLngBounds();
 
   Object.values(places).forEach(p => {
     const pos = { lat: p.lat, lng: p.lng };
-    const marker = new google.maps.Marker({
+    const marker = new gmaps.Marker({
       position: pos,
       map: travelMap,
       title: `${p.label} \u00b7 ${p.trips.length} ${p.trips.length === 1 ? 'trip' : 'trips'}`,
       icon: {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: gmaps.SymbolPath.CIRCLE,
         scale: mapMarkerScale(p.trips.length),
         fillColor: '#388A8C',
         fillOpacity: 0.85,
@@ -5333,10 +5384,15 @@ function drawMapMarkers() {
   });
 
   travelMap.fitBounds(bounds, 60);
-  // One trip shouldn't zoom to a street corner
-  google.maps.event.addListenerOnce(travelMap, 'idle', () => {
-    if (travelMap.getZoom() > 11) travelMap.setZoom(11);
-  });
+  // One trip shouldn't zoom to a street corner. Uses the map's own addListener
+  // rather than the google.maps.event namespace, which is another thing the
+  // async bootstrap does not guarantee is there.
+  if (typeof travelMap.addListener === 'function') {
+    const once = travelMap.addListener('idle', () => {
+      if (travelMap.getZoom && travelMap.getZoom() > 11) travelMap.setZoom(11);
+      if (once && typeof once.remove === 'function') once.remove();
+    });
+  }
 }
 
 // ── TRAVEL DASHBOARD ──
@@ -6241,7 +6297,7 @@ function sortData(arr, col, dir, keyFnOrField) {
       av = a[col] ?? ''; bv = b[col] ?? '';
     }
     // Numeric sort for numeric fields
-    const numericCols = ['arr','total_contract_value','contract_value','max_slots','days','scope'];
+    const numericCols = ['arr','total_contract_value','contract_value','max_slots','days'];
     // Date columns sort chronologically, not as strings (parseFloat would read
     // '2026-09-15' as 2026 and collapse every trip in a year onto one value)
     const dateCols = ['start_date','end_date','target_end_date'];
@@ -6453,6 +6509,7 @@ const REV_PROGRAMS = [
 ];
 
 const ENGAGEMENT_PHASES = ['Scoping','Build','Active delivery','Maintenance / embedding','Wind-down','On Hold / Cancelled','Complete'];
+const ENGAGEMENT_SCOPES = ['Heavy 1.5','Standard 1.0','Light 0.5'];
 const WS_STATUSES = ['Purchased','Active pipeline','Potential','Not needed','Unknown'];
 
 const TRIP_PURPOSES = ['Kickoff','Training','Workshop','Boot Camp','SKO','Conference/event','EBR','Internal','Other'];
@@ -6700,7 +6757,8 @@ function addEngagementBlock(data = null) {
       <div class="form-field">
         <label class="form-label">Scope</label>
         <select class="form-select" id="eng-scope-${idx}">
-          ${scopeOptionsHtml(data ? data.scope : DEFAULT_SCOPE)}
+          <option value="">Select...</option>
+          ${ENGAGEMENT_SCOPES.map(s => `<option${data?.scope===s?' selected':''}>${s}</option>`).join('')}
         </select>
       </div>
       <div class="form-field">
@@ -6726,16 +6784,11 @@ function addEngagementBlock(data = null) {
         </select>
       </div>
       <div class="form-field">
-        <label class="form-label">Support AM and scope</label>
-        <div style="display:flex;gap:8px">
-          <select class="form-select" id="eng-support-am-${idx}" style="flex:1;min-width:0" onchange="syncSupportScope('eng-support-am-${idx}','eng-support-scope-${idx}')">
-            <option value="">Select...</option>
-            ${supportOptions}
-          </select>
-          <select class="form-select" id="eng-support-scope-${idx}" style="width:84px;flex:none" title="Support AM scope"${data?.support_am ? '' : ' disabled'}>
-            ${scopeOptionsHtml(data?.support_am ? scopeNum(data.support_scope, DEFAULT_SUPPORT_SCOPE) : null, '–')}
-          </select>
-        </div>
+        <label class="form-label">Support AM</label>
+        <select class="form-select" id="eng-support-am-${idx}">
+          <option value="">Select...</option>
+          ${supportOptions}
+        </select>
       </div>
       <div class="form-field">
         <label class="form-label">LXD assigned</label>
@@ -6778,14 +6831,12 @@ function collectEngagements(accountId) {
       account_id: accountId,
       rev_program: program,
       phase: document.getElementById('eng-phase-' + idx)?.value || null,
-      scope: scopeNum(document.getElementById('eng-scope-' + idx)?.value, null),
+      scope: document.getElementById('eng-scope-' + idx)?.value || null,
       contract_value: parseCurrencyInput(document.getElementById('eng-cv-' + idx)?.value),
       start_date: document.getElementById('eng-start-' + idx)?.value || null,
       target_end_date: document.getElementById('eng-end-' + idx)?.value || null,
       lead_am: document.getElementById('eng-lead-am-' + idx)?.value || null,
       support_am: document.getElementById('eng-support-am-' + idx)?.value || null,
-      support_scope: document.getElementById('eng-support-am-' + idx)?.value
-        ? scopeNum(document.getElementById('eng-support-scope-' + idx)?.value, DEFAULT_SUPPORT_SCOPE) : null,
       lxd_assigned: document.getElementById('eng-lxd-' + idx)?.value || null,
       specialists_assigned: specChecked || null,
       notes: document.getElementById('eng-notes-' + idx)?.value.trim() || null,
@@ -6941,21 +6992,6 @@ function buildSpecialistCheckboxes(selectedNames) {
   if (trigger) trigger.textContent = selected.length ? selected.join(', ') : 'Select specialists...';
 }
 
-// Support scope follows the Support AM picker: defaults to 0.25 when someone
-// is picked, clears and locks when they're removed.
-function syncSupportScope(amId, scopeId) {
-  const am = document.getElementById(amId);
-  const sc = document.getElementById(scopeId);
-  if (!am || !sc) return;
-  if (am.value) {
-    sc.disabled = false;
-    if (!sc.value) sc.value = String(DEFAULT_SUPPORT_SCOPE);
-  } else {
-    sc.value = '';
-    sc.disabled = true;
-  }
-}
-
 function openEngagementForm(engagement, accountId, accountName) {
   editingEngagementId = engagement ? engagement.id : null;
   engagementAccountId = engagement ? engagement.account_id : accountId;
@@ -6977,11 +7013,7 @@ function openEngagementForm(engagement, accountId, accountName) {
   buildSpecialistCheckboxes(engagement?.specialists_assigned || '');
 
   document.getElementById('ef-phase').value = engagement?.phase || '';
-  document.getElementById('ef-scope').innerHTML =
-    scopeOptionsHtml(engagement ? engagement.scope : DEFAULT_SCOPE);
-  document.getElementById('ef-support_scope').innerHTML =
-    scopeOptionsHtml(engagement?.support_am ? scopeNum(engagement.support_scope, DEFAULT_SUPPORT_SCOPE) : null, '–');
-  document.getElementById('ef-support_scope').disabled = !engagement?.support_am;
+  document.getElementById('ef-scope').value = engagement?.scope || '';
   setCurrencyInput('ef-contract_value', engagement?.contract_value);
   document.getElementById('ef-start_date').value = engagement?.start_date || '';
   document.getElementById('ef-target_end_date').value = engagement?.target_end_date || '';
@@ -7022,15 +7054,13 @@ async function saveEngagement() {
     account_id: engagementAccountId,
     rev_program: program,
     phase: document.getElementById('ef-phase').value || null,
-    scope: scopeNum(document.getElementById('ef-scope').value, null),
+    scope: document.getElementById('ef-scope').value || null,
     contract_value: parseCurrencyInput(document.getElementById('ef-contract_value').value),
     start_date: document.getElementById('ef-start_date').value || null,
     target_end_date: document.getElementById('ef-target_end_date').value || null,
     lxd_assigned: document.getElementById('ef-lxd_assigned').value || null,
     lead_am: document.getElementById('ef-lead_am').value || null,
     support_am: document.getElementById('ef-support_am').value || null,
-    support_scope: document.getElementById('ef-support_am').value
-      ? scopeNum(document.getElementById('ef-support_scope').value, DEFAULT_SUPPORT_SCOPE) : null,
     specialists_assigned: specialists || null,
     notes: document.getElementById('ef-notes').value.trim() || null,
   };
