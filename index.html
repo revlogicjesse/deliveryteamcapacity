@@ -382,6 +382,37 @@
   /* ── CAPACITY BARS ── */
   .capacity-list { padding: 4px 0; }
 
+  /* ── CAPACITY PEOPLE FILTER ── */
+  .cap-filter-wrap { position: relative; }
+  .cap-filter-btn { padding: 4px 12px !important; font-size: 12px !important; display: inline-flex; align-items: center; gap: 6px; }
+  .cap-filter-btn.active { border-color: var(--green); color: var(--green); }
+  .cap-filter-panel {
+    display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 150;
+    width: 300px; background: white; border: var(--border); border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(33,42,54,0.18);
+  }
+  .cap-filter-panel.open { display: block; }
+  .cap-filter-head { padding: 12px 14px 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6B7280; }
+  .cap-filter-head a { color: var(--cyan); cursor: pointer; text-decoration: none; font-weight: 500; }
+  .cap-filter-head a:hover { text-decoration: underline; }
+  .cap-filter-list { max-height: 340px; overflow-y: auto; padding: 0 6px 6px; }
+  .cap-filter-group { font-size: 10px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 8px 4px; }
+  .cap-filter-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--dark); }
+  .cap-filter-item:hover { background: var(--light-green); }
+  .cap-filter-item input { accent-color: var(--green); width: 14px; height: 14px; }
+  .cap-filter-foot { border-top: 1px solid rgba(33,42,54,0.08); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .cap-filter-note { font-size: 11px; color: #9CA3AF; }
+  .stat-card.clickable { cursor: pointer; transition: border-color 0.12s, box-shadow 0.12s; }
+  .stat-card.clickable:hover { border-color: var(--green); }
+
+  /* ── PIPELINE BREAKDOWN ── */
+  .pipe-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(33,42,54,0.06); cursor: pointer; border-radius: 6px; }
+  .pipe-row:hover { background: #F0FBF5; }
+  .pipe-name { font-size: 13px; font-weight: 600; color: var(--dark); }
+  .pipe-sub { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+  .pipe-amt { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--dark); white-space: nowrap; padding-left: 16px; }
+  .pipe-total { display: flex; justify-content: space-between; padding: 14px 4px 0; font-size: 13px; font-weight: 600; color: var(--dark); }
+
   .capacity-row {
     display: flex;
     align-items: center;
@@ -2245,7 +2276,7 @@
             <div class="stat-label">Total TAO</div>
             <div class="stat-value green" id="stat-tao">–</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card clickable" onclick="openPipelineBreakdown()" title="See pipeline by account">
             <div class="stat-label">Active pipeline</div>
             <div class="stat-value" id="stat-pipeline">–</div>
           </div>
@@ -2254,7 +2285,26 @@
         <div class="section-card">
           <div class="section-header">
             <div class="section-title">AM capacity</div>
-            <div class="section-count" id="capacity-count">–</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="section-count" id="capacity-count">–</div>
+              <div class="cap-filter-wrap" id="cap-filter-wrap">
+                <button class="btn-secondary cap-filter-btn" id="cap-filter-btn" onclick="toggleCapFilter(event)">
+                  <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor"><path d="M1.5 3a.5.5 0 01.5-.5h12a.5.5 0 01.4.8L10 9.17V13a.5.5 0 01-.28.45l-3 1.5A.5.5 0 016 14.5V9.17L1.6 3.3A.5.5 0 011.5 3z"/></svg>
+                  Filter people
+                </button>
+                <div class="cap-filter-panel" id="cap-filter-panel" onclick="event.stopPropagation()">
+                  <div class="cap-filter-head">
+                    <span id="cap-filter-summary">–</span>
+                    <span><a onclick="capFilterSelectAll(true)">All</a> · <a onclick="capFilterSelectAll(false)">None</a></span>
+                  </div>
+                  <div class="cap-filter-list" id="cap-filter-list"></div>
+                  <div class="cap-filter-foot">
+                    <a class="cap-filter-note" style="cursor:pointer;color:var(--cyan)" onclick="resetCapFilter()">Reset to default</a>
+                    <button class="btn-primary" id="cap-filter-save" style="padding:5px 12px;font-size:12px;display:none" onclick="saveCapFilterDefault()">Save as default</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="capacity-list" id="capacity-list">
             <div class="loading-state"><div class="loading-spinner"></div><p>Loading capacity data...</p></div>
@@ -3109,6 +3159,19 @@
 </div>
 
 
+<!-- PIPELINE BREAKDOWN MODAL -->
+<div class="modal-overlay" id="pipeline-modal" onclick="if(event.target===this)closePipelineBreakdown()">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title">Active pipeline by account</div>
+      <button class="modal-close" onclick="closePipelineBreakdown()">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="pipeline-modal-body" style="padding-top:12px"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="person-modal">
   <div class="modal">
     <div class="modal-header">
@@ -3165,6 +3228,12 @@
         <div class="form-field">
           <label class="form-label">Notes</label>
           <input class="form-input" id="p-notes" placeholder="Optional notes">
+        </div>
+        <div class="form-field span-2">
+          <label class="checkbox-item" style="display:inline-flex;cursor:pointer" for="p-is_admin">
+            <input type="checkbox" id="p-is_admin">
+            <span style="font-size:12px;font-weight:500">Admin (can manage People and save default views; needs an email above)</span>
+          </label>
         </div>
       </div>
 
@@ -3360,14 +3429,31 @@ async function initAuth() {
 }
 
 // ── ACCESS CONTROL ──
-const PEOPLE_ALLOWLIST = [
-  'jesse.potter@rev-logic.com',
-  'tiff@rev-logic.com',
-  'dandre@rev-logic.com'
-];
+// Admins are people records with is_admin = true, matched on login email.
+// Admins can manage the People tab and save default views. Supabase RLS
+// enforces the same rule via public.is_app_admin().
+function currentPersonRecord() {
+  const email = (currentUser?.email || '').toLowerCase();
+  if (!email) return null;
+  return allPeople.find(p => (p.email || '').toLowerCase() === email) || null;
+}
+
+function isAdmin() {
+  const me = currentPersonRecord();
+  return !!(me && me.is_admin && (me.status || 'Active') === 'Active');
+}
 
 function canAccessPeople() {
-  return currentUser && PEOPLE_ALLOWLIST.includes((currentUser.email || '').toLowerCase());
+  return isAdmin();
+}
+
+function applyAdminVisibility() {
+  const peopleNav  = document.querySelector('[data-page="people"]');
+  const peoplePage = document.getElementById('page-people');
+  if (peopleNav)  peopleNav.style.display  = canAccessPeople() ? '' : 'none';
+  if (peoplePage) peoplePage.style.display = canAccessPeople() ? '' : 'none';
+  const saveBtn = document.getElementById('cap-filter-save');
+  if (saveBtn) saveBtn.style.display = isAdmin() ? '' : 'none';
 }
 
 function showApp() {
@@ -3383,11 +3469,8 @@ function showApp() {
   document.getElementById('user-email').textContent = email;
   document.getElementById('user-avatar').textContent = initials;
 
-  // Show/hide People section based on allowlist
-  const peopleNav  = document.querySelector('[data-page="people"]');
-  const peoplePage = document.getElementById('page-people');
-  if (peopleNav)  peopleNav.style.display  = canAccessPeople() ? '' : 'none';
-  if (peoplePage) peoplePage.style.display = canAccessPeople() ? '' : 'none';
+  // Hide admin-only areas until people load and we know who's an admin
+  applyAdminVisibility();
 
   updateTopbarMeta();
   loadAllData();
@@ -3410,6 +3493,7 @@ async function loadAllData() {
     loadTripAttendees()
   ];
   dataLoads.push(loadPeople());
+  dataLoads.push(loadAppSettings());
   await Promise.all(dataLoads);
   // Re-render accounts now that whitespace is loaded so TAO column is accurate
   renderAccounts(allAccounts);
@@ -3435,10 +3519,20 @@ async function loadPeople() {
   const { data, error } = await db.from('people').select('*').order('full_name');
   if (error) { showToast('Error loading people'); return; }
   allPeople = data || [];
+  applyAdminVisibility();
   if (canAccessPeople()) {
     renderPeople();
     populateAMFilters();
   }
+}
+
+// ── APP SETTINGS (saved default views) ──
+let appSettings = {};
+async function loadAppSettings() {
+  const { data, error } = await db.from('app_settings').select('*');
+  if (error) return; // table not set up yet: fall back to built-in defaults
+  appSettings = {};
+  (data || []).forEach(r => { appSettings[r.key] = r.value; });
 }
 
 async function loadAccounts() {
@@ -3505,14 +3599,11 @@ function updateStats() {
     .filter(w => taoStatuses.includes(w.status) && taoAccountIds.has(w.account_id))
     .reduce((sum, w) => sum + (parseFloat(w.override_price) || parseFloat(w.list_price) || 0), 0);
 
-  // Active Pipeline: same account filter, status = Active pipeline only
-  const pipeline = allWhitespace
-    .filter(w => w.status === 'Active pipeline' && taoAccountIds.has(w.account_id))
-    .reduce((sum, w) => sum + (parseFloat(w.override_price) || parseFloat(w.list_price) || 0), 0);
+  // Active Pipeline: any account status, whitespace status = Active pipeline only
+  const pipeline = getPipelineRows().reduce((sum, r) => sum + r.total, 0);
 
-  // Capacity: sum slots used vs total available across Engagement Leads, Support AMs, Pod Leaders
-  const capacityRoles = ['Engagement Lead','Support AM','Pod Leader'];
-  const capacityPeople = allPeople.filter(p => p.status === 'Active' && capacityRoles.includes(p.role));
+  // Capacity: sum slots used vs total available across the people in the current capacity view
+  const capacityPeople = getCapacityPeople();
   const totalMax = capacityPeople.reduce((sum, p) => sum + (parseFloat(p.max_slots) || 0), 0);
   const totalUsed = capacityPeople.reduce((sum, p) => sum + calcSlotsForPerson(p.full_name), 0);
   const capacityStr = totalMax > 0 ? `${totalUsed.toFixed(2)} / ${totalMax.toFixed(1)}` : '–';
@@ -3593,14 +3684,173 @@ function otherTeamHtml(e, personName) {
 }
 
 // ── CAPACITY ──
-function renderCapacity() {
-  const capacityRoles = ['Engagement Lead','Support AM','Pod Leader'];
-  const ams = allPeople.filter(p => p.status === 'Active' && capacityRoles.includes(p.role));
+// ── CAPACITY PEOPLE FILTER ──
+// Selection precedence: this browser's own pick > admin-saved default > built-in role default.
+const CAPACITY_DEFAULT_ROLES = ['Engagement Lead','Support AM','Pod Leader'];
+const CAP_FILTER_LS_KEY = 'capacityPeopleFilter';
+const CAP_FILTER_SETTING_KEY = 'capacity_default_people';
+const CAP_ROLE_ORDER = ['Pod Leader','Engagement Lead','Support AM','LXD','Specialist','ELT'];
 
-  document.getElementById('capacity-count').textContent = ams.length + ' people';
+function activePeopleSorted() {
+  const rank = r => { const i = CAP_ROLE_ORDER.indexOf(r); return i === -1 ? 99 : i; };
+  return allPeople
+    .filter(p => p.status === 'Active')
+    .sort((a, b) => rank(a.role) - rank(b.role) || (a.full_name || '').localeCompare(b.full_name || ''));
+}
+
+function getSavedDefaultIds() {
+  const v = appSettings[CAP_FILTER_SETTING_KEY];
+  return v && Array.isArray(v.ids) ? v.ids : null;
+}
+
+function getPersonalIds() {
+  try {
+    const v = JSON.parse(localStorage.getItem(CAP_FILTER_LS_KEY) || 'null');
+    return v && Array.isArray(v.ids) ? v.ids : null;
+  } catch (e) { return null; }
+}
+
+function setPersonalIds(ids) {
+  try {
+    if (ids === null) localStorage.removeItem(CAP_FILTER_LS_KEY);
+    else localStorage.setItem(CAP_FILTER_LS_KEY, JSON.stringify({ ids }));
+  } catch (e) { /* storage blocked: selection just won't persist */ }
+}
+
+function defaultCapacityIds() {
+  const saved = getSavedDefaultIds();
+  if (saved) return saved;
+  return allPeople.filter(p => CAPACITY_DEFAULT_ROLES.includes(p.role)).map(p => p.id);
+}
+
+function selectedCapacityIds() {
+  return new Set(getPersonalIds() || defaultCapacityIds());
+}
+
+function getCapacityPeople() {
+  const ids = selectedCapacityIds();
+  return activePeopleSorted().filter(p => ids.has(p.id));
+}
+
+function renderCapFilterPanel() {
+  const listEl = document.getElementById('cap-filter-list');
+  if (!listEl) return;
+  const people = activePeopleSorted();
+  const ids = selectedCapacityIds();
+  let html = '', lastRole = null;
+  people.forEach(p => {
+    const role = p.role || 'No role';
+    if (role !== lastRole) { html += `<div class="cap-filter-group">${role}</div>`; lastRole = role; }
+    html += `<label class="cap-filter-item"><input type="checkbox" ${ids.has(p.id) ? 'checked' : ''} onchange="capFilterToggle('${p.id}', this.checked)">${p.full_name}</label>`;
+  });
+  listEl.innerHTML = html || '<div class="cap-filter-note" style="padding:10px">No active people.</div>';
+  const shown = people.filter(p => ids.has(p.id)).length;
+  document.getElementById('cap-filter-summary').textContent = `Showing ${shown} of ${people.length}`;
+  const btn = document.getElementById('cap-filter-btn');
+  if (btn) btn.classList.toggle('active', !!getPersonalIds());
+}
+
+function toggleCapFilter(ev) {
+  ev.stopPropagation();
+  const panel = document.getElementById('cap-filter-panel');
+  const opening = !panel.classList.contains('open');
+  if (opening) { renderCapFilterPanel(); applyAdminVisibility(); }
+  panel.classList.toggle('open', opening);
+}
+
+document.addEventListener('click', () => {
+  const panel = document.getElementById('cap-filter-panel');
+  if (panel) panel.classList.remove('open');
+});
+
+function capFilterToggle(id, checked) {
+  const ids = selectedCapacityIds();
+  if (checked) ids.add(id); else ids.delete(id);
+  setPersonalIds([...ids]);
+  renderCapacity();
+  renderCapFilterPanel();
+}
+
+function capFilterSelectAll(all) {
+  setPersonalIds(all ? activePeopleSorted().map(p => p.id) : []);
+  renderCapacity();
+  renderCapFilterPanel();
+}
+
+function resetCapFilter() {
+  setPersonalIds(null);
+  renderCapacity();
+  renderCapFilterPanel();
+  showToast('Back to the default view');
+}
+
+async function saveCapFilterDefault() {
+  if (!isAdmin()) { showToast('Only admins can save the default view'); return; }
+  const ids = [...selectedCapacityIds()];
+  const { error } = await db.from('app_settings').upsert({
+    key: CAP_FILTER_SETTING_KEY,
+    value: { ids },
+    updated_at: new Date().toISOString(),
+    updated_by: currentUser?.email || null
+  });
+  if (error) { alert('Error saving default view: ' + error.message); return; }
+  appSettings[CAP_FILTER_SETTING_KEY] = { ids };
+  setPersonalIds(null); // admin's own view now just follows the default
+  renderCapacity();
+  renderCapFilterPanel();
+  showToast('Default view saved for everyone');
+}
+
+// ── ACTIVE PIPELINE BREAKDOWN ──
+// Any account status. One row per account, summed across its Active pipeline programs.
+function getPipelineRows() {
+  const byAccount = {};
+  allWhitespace.filter(w => w.status === 'Active pipeline').forEach(w => {
+    const amt = parseFloat(w.override_price) || parseFloat(w.list_price) || 0;
+    if (!byAccount[w.account_id]) byAccount[w.account_id] = { total: 0, programs: [] };
+    byAccount[w.account_id].total += amt;
+    byAccount[w.account_id].programs.push(w.rev_program);
+  });
+  return Object.entries(byAccount).map(([id, r]) => {
+    const acct = allAccounts.find(a => a.id === id);
+    return { id, name: acct?.account_name || 'Unknown account', status: acct?.status || '', total: r.total, programs: r.programs };
+  }).sort((a, b) => b.total - a.total);
+}
+
+function openPipelineBreakdown() {
+  const rows = getPipelineRows();
+  const body = document.getElementById('pipeline-modal-body');
+  if (!rows.length) {
+    body.innerHTML = '<div class="empty-state" style="padding:20px"><p>No accounts have active pipeline right now.</p></div>';
+  } else {
+    const total = rows.reduce((s, r) => s + r.total, 0);
+    body.innerHTML = rows.map(r => `
+      <div class="pipe-row" onclick="closePipelineBreakdown(); openAccountDetail('${r.id}')">
+        <div>
+          <div class="pipe-name">${r.name}</div>
+          <div class="pipe-sub">${r.programs.join(', ')}${r.status ? ' · ' + r.status : ''}</div>
+        </div>
+        <div class="pipe-amt">${formatCurrency(r.total)}</div>
+      </div>`).join('') + `
+      <div class="pipe-total"><span>${rows.length} account${rows.length === 1 ? '' : 's'}</span><span style="font-family:'DM Mono',monospace">${formatCurrency(total)}</span></div>`;
+  }
+  document.getElementById('pipeline-modal').classList.add('open');
+}
+
+function closePipelineBreakdown() {
+  document.getElementById('pipeline-modal').classList.remove('open');
+}
+
+function renderCapacity() {
+  const ams = getCapacityPeople();
+  const activeCount = allPeople.filter(p => p.status === 'Active').length;
+
+  document.getElementById('capacity-count').textContent = `${ams.length} of ${activeCount} people`;
+  const filterPanel = document.getElementById('cap-filter-panel');
+  if (filterPanel && filterPanel.classList.contains('open')) renderCapFilterPanel();
 
   if (!ams.length) {
-    document.getElementById('capacity-list').innerHTML = '<div class="empty-state"><p>No active Engagement Leads, Support AMs, or Pod Leaders found.</p></div>';
+    document.getElementById('capacity-list').innerHTML = '<div class="empty-state"><p>No one in this view. Use Filter people to add people.</p></div>';
     updateStats();
     renderRecentLists();
     return;
@@ -6645,6 +6895,7 @@ function openPersonForm(person = null) {
   document.getElementById('p-max_slots').value = person?.max_slots || '';
   document.getElementById('p-email').value = person?.email || '';
   document.getElementById('p-notes').value = person?.notes || '';
+  document.getElementById('p-is_admin').checked = !!person?.is_admin;
 
   // Restore can_lead checkboxes
   const canLead = (person?.can_lead || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -6679,7 +6930,26 @@ async function savePerson() {
     email: document.getElementById('p-email').value.trim() || null,
     notes: document.getElementById('p-notes').value.trim() || null,
     can_lead: canLead || null,
+    is_admin: document.getElementById('p-is_admin').checked,
   };
+
+  if (payload.is_admin && !payload.email) {
+    alert('Admins need an email so the app can match their login.');
+    return;
+  }
+
+  // Never leave the app with zero admins
+  const otherAdmins = allPeople.filter(p => p.is_admin && p.id !== editingPersonId && (p.status || 'Active') === 'Active');
+  if ((!payload.is_admin || payload.status !== 'Active') && editingPersonId && !otherAdmins.length) {
+    alert('This is the only active admin. Make someone else an admin first.');
+    return;
+  }
+
+  // Heads up when removing your own admin access
+  const me = currentPersonRecord();
+  if (me && editingPersonId === me.id && me.is_admin && (!payload.is_admin || payload.status !== 'Active')) {
+    if (!confirm("You're removing your own admin access. You'll lose the People tab. Continue?")) return;
+  }
 
   const btn = document.getElementById('person-save-btn');
   btn.classList.add('btn-saving');
@@ -7225,6 +7495,11 @@ async function deleteEngagement(id, label) {
 
 // ── DELETE ──
 async function deletePerson(id, name) {
+  const target = allPeople.find(p => p.id === id);
+  if (target?.is_admin && !allPeople.some(p => p.is_admin && p.id !== id && (p.status || 'Active') === 'Active')) {
+    alert('This is the only active admin. Make someone else an admin first.');
+    return;
+  }
   if (!confirm(`Delete ${name}? This can't be undone.`)) return;
   const { error } = await db.from('people').delete().eq('id', id);
   if (error) { alert('Error deleting: ' + error.message); return; }
