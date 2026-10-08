@@ -3195,6 +3195,7 @@
             <option>Engagement Lead</option>
             <option>Support AM</option>
             <option>LXD</option>
+            <option>GTM Engineer</option>
             <option>Specialist</option>
             <option>Pod Leader</option>
             <option>ELT</option>
@@ -3689,7 +3690,7 @@ function otherTeamHtml(e, personName) {
 const CAPACITY_DEFAULT_ROLES = ['Engagement Lead','Support AM','Pod Leader'];
 const CAP_FILTER_LS_KEY = 'capacityPeopleFilter';
 const CAP_FILTER_SETTING_KEY = 'capacity_default_people';
-const CAP_ROLE_ORDER = ['Pod Leader','Engagement Lead','Support AM','LXD','Specialist','ELT'];
+const CAP_ROLE_ORDER = ['Pod Leader','Engagement Lead','Support AM','LXD','GTM Engineer','Specialist','ELT'];
 
 function activePeopleSorted() {
   const rank = r => { const i = CAP_ROLE_ORDER.indexOf(r); return i === -1 ? 99 : i; };
