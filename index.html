@@ -1936,6 +1936,95 @@
     gap: 14px;
   }
 
+  /* ── SKO ── */
+  .sko-launch {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    margin: 16px 20px 6px; padding: 16px 20px;
+    background: var(--light-green); border: 2px solid var(--green); border-radius: 10px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .sko-launch-kicker {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--treasury); display: flex; align-items: center; gap: 7px;
+  }
+  .sko-launch-title { font-size: 17px; font-weight: 700; color: var(--dark); letter-spacing: -0.2px; margin-top: 3px; }
+  .sko-launch-sub { font-size: 12px; color: #4B5563; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .sko-btn-wrap { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+  .sko-btn {
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+    padding: 12px 24px; border-radius: 8px; border: 2px solid var(--green); cursor: pointer;
+    background: var(--green); color: white; white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(81,188,136,0.35);
+    transition: transform 0.1s, box-shadow 0.12s, background 0.12s;
+  }
+  .sko-btn:hover { background: #45A877; border-color: #45A877; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(81,188,136,0.45); }
+  .sko-btn-hint { font-size: 11px; color: #6B7280; margin-top: 6px; }
+  .sko-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: none; animation: skoPulse 1.6s infinite; }
+  @keyframes skoPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(81,188,136,0.7); }
+    70%  { box-shadow: 0 0 0 8px rgba(81,188,136,0); }
+    100% { box-shadow: 0 0 0 0 rgba(81,188,136,0); }
+  }
+  .sko-stat-link {
+    background: none; border: none; padding: 0; font: inherit; color: inherit;
+    cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+  }
+  .sko-stat-link.warn { color: #B91C1C; font-weight: 600; }
+  .sko-lock-chip {
+    display: none; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: white; background: var(--dark);
+    padding: 6px 12px; border-radius: 6px;
+  }
+  .sko-lock-chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+  /* SKO mode on: unmistakable */
+  #page-travel.sko-on .section-card { box-shadow: 0 0 0 3px var(--green), var(--shadow); }
+  #page-travel.sko-on .sko-launch { background: var(--dark); border-color: var(--dark); }
+  #page-travel.sko-on .sko-launch-kicker { color: var(--green); }
+  #page-travel.sko-on .sko-launch-title { color: white; }
+  #page-travel.sko-on .sko-launch-sub { color: rgba(255,255,255,0.78); }
+  #page-travel.sko-on .sko-stat-link.warn { color: #FCA5A5; }
+  #page-travel.sko-on .sko-btn { background: white; color: var(--dark); border-color: white; box-shadow: none; }
+  #page-travel.sko-on .sko-btn:hover { background: #F3F4F6; border-color: #F3F4F6; }
+  #page-travel.sko-on .sko-btn-hint { color: rgba(255,255,255,0.72); }
+  #page-travel.sko-on .sko-live-dot { display: inline-block; }
+  #page-travel.sko-on .sko-lock-chip { display: inline-flex; }
+  #page-travel.sko-on .tr-hide-in-sko { display: none; }
+
+  /* SKO board */
+  .sko-inv-chip {
+    display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 4px;
+    background: var(--light-green); color: var(--treasury); margin: 0 4px 4px 0; white-space: nowrap;
+  }
+  .sko-missing {
+    display: inline-block; background: #FEE2E2; color: #991B1B;
+    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+  }
+  .sko-trip-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; cursor: pointer; flex-wrap: wrap; }
+  .sko-trip-row:hover .sko-trip-dates { text-decoration: underline; }
+  .sko-trip-dates { font-family: 'DM Mono', ui-monospace, monospace; font-size: 12px; white-space: nowrap; }
+  .sko-who { font-size: 12px; color: #6B7280; }
+  .sko-unset { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+  .sko-mini-btn { font-size: 11px; padding: 3px 10px; font-weight: 500; margin-left: 8px; }
+  .sko-board-table td { vertical-align: top; }
+  .sko-acct-link { font-weight: 600; color: var(--dark); cursor: pointer; }
+  .sko-acct-link:hover { color: var(--cyan); text-decoration: underline; }
+
+  /* Account page SKO section */
+  .sko-field-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr 2fr; gap: 14px; }
+  .sko-trip-line { margin-top: 14px; font-size: 12px; color: #6B7280; display: flex; flex-direction: column; gap: 4px; }
+  .sko-trip-line:empty { display: none; }
+  .sko-past { margin-top: 12px; font-size: 12px; color: #6B7280; }
+  .sko-past:empty { display: none; }
+  .sko-past summary { cursor: pointer; font-weight: 500; color: #4B5563; }
+  .sko-past-row { padding: 4px 0 0 14px; }
+
+  @media (max-width: 1000px) {
+    .sko-field-grid { grid-template-columns: 1fr 1fr; }
+    .sko-launch { flex-direction: column; align-items: flex-start; }
+    .sko-btn-wrap { align-items: flex-start; }
+  }
+
   /* ── ACCOUNT TRAVEL ── */
   .at-stats {
     display: grid;
@@ -2527,6 +2616,18 @@
             </div>
           </div>
 
+          <div class="sko-launch" id="sko-launch">
+            <div>
+              <div class="sko-launch-kicker"><span class="sko-live-dot"></span><span id="sko-kicker">SKO season</span></div>
+              <div class="sko-launch-title" id="sko-title">SKO planning</div>
+              <div class="sko-launch-sub" id="sko-sub"></div>
+            </div>
+            <div class="sko-btn-wrap">
+              <button type="button" class="sko-btn" id="sko-btn" aria-pressed="false" onclick="toggleSkoMode()">SKOs</button>
+              <div class="sko-btn-hint" id="sko-btn-hint"></div>
+            </div>
+          </div>
+
           <div class="filter-row travel-filter-row" id="travel-filter-row">
             <div class="filter-ms-wrap">
               <button type="button" class="filter-ms-trigger" id="fms-tr-person-trigger" onclick="toggleFilterMS('fms-tr-person-dd', this)">All people</button>
@@ -2536,11 +2637,11 @@
               <button type="button" class="filter-ms-trigger" id="fms-tr-account-trigger" onclick="toggleFilterMS('fms-tr-account-dd', this)">All accounts</button>
               <div class="filter-ms-dropdown" id="fms-tr-account-dd"></div>
             </div>
-            <div class="filter-ms-wrap">
+            <div class="filter-ms-wrap tr-hide-in-sko">
               <button type="button" class="filter-ms-trigger" id="fms-tr-purpose-trigger" onclick="toggleFilterMS('fms-tr-purpose-dd', this)">All purposes</button>
               <div class="filter-ms-dropdown" id="fms-tr-purpose-dd"></div>
             </div>
-            <div class="filter-ms-wrap">
+            <div class="filter-ms-wrap tr-hide-in-sko">
               <button type="button" class="filter-ms-trigger active" id="fms-tr-date-trigger" onclick="toggleFilterMS('fms-tr-date-dd', this)">Current quarter</button>
               <div class="filter-ms-dropdown" id="fms-tr-date-dd">
                 <div class="filter-ms-option"><input type="radio" name="tr-date" id="tr-date-month" value="month" onchange="setTravelDateMode('month')"><label for="tr-date-month">Current month</label></div>
@@ -2559,6 +2660,7 @@
                 </div>
               </div>
             </div>
+            <span class="sko-lock-chip" id="sko-lock-chip">SKO trips</span>
             <button class="filter-clear" id="travel-filter-clear" onclick="clearTravelFilters()" style="display:none">Clear filters</button>
             <span class="filter-note" id="travel-filter-note"></span>
           </div>
@@ -2569,6 +2671,7 @@
           </div>
 
           <div id="travel-view-dashboard" class="travel-view active">
+            <div id="sko-panel"></div>
             <div style="padding:20px">
               <div class="travel-stats-row" id="travel-stats"></div>
             </div>
@@ -2590,23 +2693,23 @@
             <div class="td-list" id="td-list"></div>
             <div class="td-legend" id="td-legend"></div>
 
-            <div class="section-header" style="border-top:var(--border)">
+            <div class="section-header tr-hide-in-sko" style="border-top:var(--border)">
               <div>
                 <div class="section-title">Needs a look</div>
                 <div class="section-sub">Conflicts and consolidation opportunities in the next 60 days, whatever the date filter says</div>
               </div>
               <div class="section-count" id="alerts-count">&ndash;</div>
             </div>
-            <div id="travel-alerts"></div>
+            <div id="travel-alerts" class="tr-hide-in-sko"></div>
 
-            <div class="section-header" style="border-top:var(--border)">
+            <div class="section-header tr-hide-in-sko" style="border-top:var(--border)">
               <div>
                 <div class="section-title">Upcoming travel</div>
                 <div class="section-sub">Next 60 days, filtered by person, account and purpose</div>
               </div>
               <div class="section-count" id="upcoming-count">&ndash;</div>
             </div>
-            <div id="travel-upcoming"></div>
+            <div id="travel-upcoming" class="tr-hide-in-sko"></div>
 
             <div class="section-header" style="border-top:var(--border)">
               <div>
@@ -2880,6 +2983,36 @@
               <span class="detail-ws-tao-value" id="detail-tao-value">–</span>
             </div>
           </div>
+        </div>
+
+        <div class="detail-section" style="margin-top:20px" id="d-sko-section">
+          <div class="detail-section-title">
+            <span id="d-sko-heading">SKO</span>
+            <button class="btn-secondary" style="font-size:11px;padding:3px 10px;font-weight:500" onclick="createTripFromSko()">+ Create trip from SKO</button>
+          </div>
+          <div class="sko-field-grid">
+            <div class="detail-field">
+              <div class="detail-label">Start date</div>
+              <input class="detail-input" type="date" id="d-sko-start" onchange="onSkoDateChange()">
+            </div>
+            <div class="detail-field">
+              <div class="detail-label">End date</div>
+              <input class="detail-input" type="date" id="d-sko-end" onchange="onSkoDateChange()">
+            </div>
+            <div class="detail-field">
+              <div class="detail-label">Location</div>
+              <input class="detail-input" id="d-sko-location" placeholder="Las Vegas" onblur="onSkoLocationBlur()">
+            </div>
+            <div class="detail-field">
+              <div class="detail-label">Our involvement</div>
+              <div class="ms-wrap">
+                <button type="button" class="ms-trigger" id="d-sko-inv-trigger" onclick="toggleMS('d-sko-inv-dd', this)">Select involvement...</button>
+                <div class="ms-dropdown" id="d-sko-inv-dd" onchange="onSkoInvolvementChange()"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sko-trip-line" id="d-sko-trips"></div>
+          <div class="sko-past" id="d-sko-past"></div>
         </div>
 
         <div class="detail-section" style="margin-top:20px">
@@ -3394,6 +3527,7 @@ let allAssignments = [];
 let allWhitespace = [];
 let allTrips = [];
 let allTripAttendees = [];
+let allSkos = [];
 
 // ── AUTH ──
 async function signInWithGoogle() {
@@ -3491,7 +3625,8 @@ async function loadAllData() {
     loadAssignments(),
     loadWhitespace(),
     loadTrips(),
-    loadTripAttendees()
+    loadTripAttendees(),
+    loadSkos()
   ];
   dataLoads.push(loadPeople());
   dataLoads.push(loadAppSettings());
@@ -3582,6 +3717,18 @@ async function loadTripAttendees() {
   if (error) { showToast('Error loading trip attendees: ' + error.message); return; }
   allTripAttendees = data || [];
   renderTravel();
+}
+
+async function loadSkos() {
+  const { data, error } = await db.from('skos').select('*');
+  if (error) {
+    console.warn('[sko] could not load skos:', error.message);
+    showToast('Error loading SKOs: ' + error.message);
+    return;
+  }
+  allSkos = data || [];
+  renderTravel();
+  if (currentDetailAccountId) renderDetailSko(currentDetailAccountId);
 }
 
 // ── STATS ──
@@ -4142,6 +4289,7 @@ function openAccountDetail(id) {
   renderDetailEngagements(id);
   renderDetailWhitespace(id);
   renderDetailTravel(id);
+  renderDetailSko(id);
   loadContacts(id);
   window.scrollTo(0, 0);
 }
@@ -4156,6 +4304,8 @@ function renderDetailTravel(accountId) {
   const stats = document.getElementById('at-stats');
   const count = document.getElementById('at-count');
   if (!tbody) return;
+  // The SKO section's trip line reads the same trips, so it refreshes with them
+  renderDetailSkoTrips(accountId);
 
   const trips = allTrips
     .filter(t => t.account_id === accountId)
@@ -4829,10 +4979,417 @@ function renderTravel() {
   const clear = document.getElementById('travel-filter-clear');
   if (clear) clear.style.display = travelFiltersActive() ? 'inline' : 'none';
 
+  renderSkoLaunch();
   renderTrips();
   renderTravelDashboard();
   renderCalendar();
   if (currentTravelView === 'map') renderMap();
+}
+
+// ── SKO PLANNING ──
+// One skos row per account per year. SKO trips are ordinary trips with
+// purpose SKO; they match an account's SKO by account and year, not by FK.
+const SKO_INVOLVEMENT = ['Keynote/Mainstage content','Breakout sessions','Studios/Creative','Planning & logistics','On-site'];
+const SKO_BUFFER_DAYS = 2;   // two trips this close together for one person get flagged
+
+let skoMode = false;
+let skoCalSaved = null;
+
+// SKO season is Q1. Through March we're in this year's season; from April on
+// we're planning next year's, so the button label rolls forward by itself.
+function skoSeasonYear() {
+  const now = new Date();
+  return now.getMonth() <= 2 ? now.getFullYear() : now.getFullYear() + 1;
+}
+
+function skoWindow(year) {
+  return { start: `${year}-01-01`, end: `${year}-03-31`, label: `1 Jan – 31 Mar ${year}` };
+}
+
+function skoFor(accountId, year) {
+  return allSkos.find(s => s.account_id === accountId && Number(s.year) === year) || null;
+}
+
+function skoHasContent(s) {
+  return !!(s && (s.start_date || s.end_date || (s.location || '').trim() || (s.involvement || []).length));
+}
+
+function skoTripsFor(accountId, year) {
+  const y = String(year);
+  return allTrips.filter(t => t.account_id === accountId && t.purpose === 'SKO' && t.status !== 'Cancelled'
+      && ((t.start_date || '').slice(0, 4) === y || (t.end_date || '').slice(0, 4) === y))
+    .sort((a, b) => (a.start_date || '').localeCompare(b.start_date || ''));
+}
+
+function formatSkoDates(s) {
+  if (!s || (!s.start_date && !s.end_date)) return 'Dates TBD';
+  return formatTripDates({ start_date: s.start_date || s.end_date, end_date: s.end_date || s.start_date });
+}
+
+function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+
+// ── Account page section ──
+function renderDetailSko(accountId) {
+  const heading = document.getElementById('d-sko-heading');
+  if (!heading) return;
+  const year = skoSeasonYear();
+  const s = skoFor(accountId, year);
+  heading.textContent = `${year} SKO`;
+  const start = document.getElementById('d-sko-start');
+  const end = document.getElementById('d-sko-end');
+  start.value = s?.start_date || '';
+  end.value = s?.end_date || '';
+  end.min = start.value || '';
+  document.getElementById('d-sko-location').value = s?.location || '';
+
+  const inv = s?.involvement || [];
+  document.getElementById('d-sko-inv-dd').innerHTML = SKO_INVOLVEMENT.map((v, i) => `<div class="ms-option">
+      <input type="checkbox" id="d-sko-inv-${i}" value="${escHtml(v)}"${inv.includes(v) ? ' checked' : ''}>
+      <label for="d-sko-inv-${i}">${escHtml(v)}</label></div>`).join('');
+  updateMSTrigger('d-sko-inv-dd', 'd-sko-inv-trigger', 'Select involvement...');
+
+  const past = allSkos.filter(x => x.account_id === accountId && Number(x.year) < year && skoHasContent(x))
+    .sort((a, b) => b.year - a.year);
+  document.getElementById('d-sko-past').innerHTML = past.length
+    ? `<details><summary>Past SKOs (${past.length})</summary>${past.map(p => `<div class="sko-past-row">
+        <b>${p.year}</b> · ${escHtml(formatSkoDates(p))}${p.location ? ' · ' + escHtml(p.location) : ''}${(p.involvement || []).length ? ' · ' + escHtml(p.involvement.join(', ')) : ''}
+      </div>`).join('')}</details>`
+    : '';
+
+  renderDetailSkoTrips(accountId);
+}
+
+function renderDetailSkoTrips(accountId) {
+  const el = document.getElementById('d-sko-trips');
+  if (!el) return;
+  const year = skoSeasonYear();
+  const trips = skoTripsFor(accountId, year);
+  if (!trips.length) {
+    el.innerHTML = skoHasContent(skoFor(accountId, year))
+      ? '<div><span class="sko-missing">No SKO trip logged</span></div>'
+      : '';
+    return;
+  }
+  el.innerHTML = trips.map(t => {
+    const who = tripAttendeesFor(t.id).map(a => personName(a.person_id)).join(', ');
+    return `<div class="sko-trip-row" onclick="openTripForm('${t.id}')">
+      <span class="trip-badge ${tripStatusToClass(t.status)}">${escHtml(t.status || 'Planned')}</span>
+      <span class="sko-trip-dates">${escHtml(formatTripDates(t))}</span>
+      <span class="sko-who">${escHtml(who) || 'No attendees yet'}</span>
+    </div>`;
+  }).join('');
+}
+
+async function saveSkoFields(fields) {
+  const accountId = currentDetailAccountId;
+  if (!accountId) return false;
+  const year = skoSeasonYear();
+  const existing = skoFor(accountId, year);
+  const merged = Object.assign({}, existing || {}, fields);
+  if (merged.start_date && merged.end_date && merged.end_date < merged.start_date) {
+    showToast('SKO end date is before the start date');
+    renderDetailSko(accountId);
+    return false;
+  }
+  const { data, error } = await db.from('skos')
+    .upsert(Object.assign({ account_id: accountId, year }, fields), { onConflict: 'account_id,year' })
+    .select().single();
+  if (error) { alert('Error saving SKO: ' + error.message); return false; }
+  if (existing) Object.assign(existing, data); else allSkos.push(data);
+  flashSaved();
+  if (currentDetailAccountId === accountId) renderDetailSkoTrips(accountId);
+  renderTravel();
+  return true;
+}
+
+function onSkoDateChange() {
+  const start = document.getElementById('d-sko-start');
+  const end = document.getElementById('d-sko-end');
+  end.min = start.value || '';
+  saveSkoFields({ start_date: start.value || null, end_date: end.value || null });
+}
+
+function onSkoLocationBlur() {
+  const el = document.getElementById('d-sko-location');
+  const value = el.value.trim() || null;
+  const existing = skoFor(currentDetailAccountId, skoSeasonYear());
+  if ((existing?.location || null) === value) return;
+  saveSkoFields({ location: value });
+}
+
+function onSkoInvolvementChange() {
+  updateMSTrigger('d-sko-inv-dd', 'd-sko-inv-trigger', 'Select involvement...');
+  saveSkoFields({ involvement: getMSValues('d-sko-inv-dd') });
+}
+
+// Opens the normal trip form, filled in from the account's SKO
+function createTripFromSko(accountId) {
+  accountId = accountId || currentDetailAccountId;
+  if (!accountId) return;
+  const s = skoFor(accountId, skoSeasonYear());
+  const acct = allAccounts.find(a => a.id === accountId);
+  openTripForm(null, accountId);
+  document.getElementById('tf-title').value = `${acct?.account_name || 'Client'} SKO`;
+  document.getElementById('tf-purpose').value = 'SKO';
+  if (s?.start_date) document.getElementById('tf-start_date').value = s.start_date;
+  if (s?.end_date) document.getElementById('tf-end_date').value = s.end_date;
+  if (s?.location) document.getElementById('tf-location_label').value = s.location;
+  updateTripDaysPreview();
+}
+
+// ── Travel page SKO mode ──
+function quarterOffsetToQ1(year) {
+  const now = new Date();
+  return (year - now.getFullYear()) * 4 - Math.floor(now.getMonth() / 3);
+}
+
+function toggleSkoMode() {
+  if (skoMode) exitSkoMode(); else enterSkoMode();
+}
+
+function enterSkoMode() {
+  if (skoMode) return;
+  skoMode = true;
+  const groupSel = document.getElementById('cal-group-by');
+  skoCalSaved = { calMode, calMonthOffset, calQuarterOffset, groupBy: groupSel ? groupSel.value : 'person' };
+  calQuarterOffset = quarterOffsetToQ1(skoSeasonYear());
+  // Grouped by person is where a double-booking jumps out
+  if (groupSel) groupSel.value = 'person';
+  document.querySelectorAll('#travel-filter-row .filter-ms-dropdown.open').forEach(d => d.classList.remove('open'));
+  setCalMode('quarter');
+  renderTravel();
+}
+
+function exitSkoMode() {
+  if (!skoMode) return;
+  skoMode = false;
+  if (skoCalSaved) {
+    calMonthOffset = skoCalSaved.calMonthOffset;
+    calQuarterOffset = skoCalSaved.calQuarterOffset;
+    const groupSel = document.getElementById('cal-group-by');
+    if (groupSel) groupSel.value = skoCalSaved.groupBy;
+    setCalMode(skoCalSaved.calMode);
+  }
+  skoCalSaved = null;
+  renderTravel();
+}
+
+// Every account with SKO details this season, plus any account with an SKO
+// trip in the window but nothing on its record. Honors the account filter.
+function skoBoardRows(year, useFilters) {
+  const accFilter = useFilters ? getFilterMSValues('fms-tr-account-dd') : [];
+  const win = skoWindow(year);
+  const inWindow = t => t.purpose === 'SKO' && t.status !== 'Cancelled' && t.start_date && t.end_date
+    && t.start_date <= win.end && t.end_date >= win.start;
+  const keys = new Set();
+  allSkos.filter(s => Number(s.year) === year && skoHasContent(s)).forEach(s => keys.add(s.account_id));
+  allTrips.filter(inWindow).forEach(t => keys.add(t.account_id || '__internal__'));
+
+  return [...keys]
+    .filter(k => !accFilter.length || accFilter.includes(k))
+    .map(k => {
+      const internal = k === '__internal__';
+      const sko = internal ? null : skoFor(k, year);
+      const trips = internal
+        ? allTrips.filter(t => !t.account_id && inWindow(t)).sort((a, b) => a.start_date.localeCompare(b.start_date))
+        : skoTripsFor(k, year);
+      const name = internal ? 'Internal' : (allAccounts.find(a => a.id === k)?.account_name || 'Unknown account');
+      return { key: k, internal, name, sko, trips,
+               sortKey: sko?.start_date || trips[0]?.start_date || '9999-99-99' };
+    })
+    .sort((a, b) => a.sortKey.localeCompare(b.sortKey) || a.name.localeCompare(b.name));
+}
+
+// One person on two trips that overlap, or with SKO_BUFFER_DAYS or fewer
+// between them, in SKO season. At least one of the pair has to be an SKO, but
+// the other can be anything, since a kickoff the day before an SKO is still a
+// problem. Honors the person filter.
+function skoConflicts(year) {
+  const win = skoWindow(year);
+  const people = getFilterMSValues('fms-tr-person-dd');
+  const pool = notCancelled(allTrips).filter(t => t.start_date && t.end_date
+    && t.start_date <= win.end && t.end_date >= win.start);
+  const byPerson = {};
+  pool.forEach(t => tripAttendeesFor(t.id).forEach(a => {
+    (byPerson[a.person_id] = byPerson[a.person_id] || []).push({ trip: t, range: attendeeRange(a, t) });
+  }));
+
+  const out = [];
+  Object.keys(byPerson).forEach(pid => {
+    if (people.length && !people.includes(pid)) return;
+    const list = byPerson[pid].sort((a, b) => a.range.start.localeCompare(b.range.start));
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i], b = list[j];
+        if (a.trip.id === b.trip.id) continue;
+        if (a.trip.purpose !== 'SKO' && b.trip.purpose !== 'SKO') continue;
+        if (rangesOverlap(a.range, b.range)) {
+          const same = placeKey(a.trip) && placeKey(a.trip) === placeKey(b.trip);
+          out.push({ pid, a, b, gap: 0, kind: same ? 'duplicate' : 'conflict' });
+          continue;
+        }
+        // Sorted by start and not overlapping, so b starts after a ends
+        const gap = daysApart(a.range.end, b.range.start);
+        if (gap <= SKO_BUFFER_DAYS) out.push({ pid, a, b, gap, kind: 'overlap' });
+      }
+    }
+  });
+  const order = { conflict: 0, duplicate: 1, overlap: 2 };
+  return out.sort((x, y) => order[x.kind] - order[y.kind]
+    || personName(x.pid).localeCompare(personName(y.pid))
+    || x.a.range.start.localeCompare(y.a.range.start));
+}
+
+function skoSummary(year, useFilters) {
+  const rows = skoBoardRows(year, useFilters);
+  const trips = useFilters
+    ? notCancelled(filteredTrips())
+    : notCancelled(allTrips).filter(t => t.purpose === 'SKO' && t.start_date && t.end_date
+        && t.start_date <= skoWindow(year).end && t.end_date >= skoWindow(year).start);
+  return {
+    accounts: rows.filter(r => skoHasContent(r.sko)).length,
+    missing: rows.filter(r => !r.internal && skoHasContent(r.sko) && !r.trips.length).length,
+    trips: trips.length,
+    confirmed: trips.filter(t => t.status === 'Confirmed').length,
+    planned: trips.filter(t => (t.status || 'Planned') === 'Planned').length,
+    conflicts: skoConflicts(year).length
+  };
+}
+
+function jumpToSkoSection(id) {
+  if (currentTravelView !== 'dashboard') setTravelView('dashboard');
+  const el = document.getElementById(id);
+  if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSkoLaunch() {
+  const page = document.getElementById('page-travel');
+  const btn = document.getElementById('sko-btn');
+  if (!page || !btn) return;
+  page.classList.toggle('sko-on', skoMode);
+  const year = skoSeasonYear();
+
+  btn.setAttribute('aria-pressed', skoMode ? 'true' : 'false');
+  btn.innerHTML = skoMode ? '&#10005;&nbsp; Exit SKO mode' : `${year} SKOs`;
+  document.getElementById('sko-btn-hint').textContent = skoMode
+    ? 'Click to go back to all travel'
+    : `Filters every view to SKO trips, Jan–Mar ${year}`;
+  document.getElementById('sko-kicker').textContent = skoMode ? 'SKO mode is on' : 'SKO season';
+  document.getElementById('sko-title').textContent = skoMode
+    ? `Showing ${year} SKOs only (Jan 1 – Mar 31)`
+    : `${year} SKO planning`;
+  document.getElementById('sko-lock-chip').textContent = `SKO trips · Jan–Mar ${year}`;
+
+  const s = skoSummary(year, skoMode);
+  const sub = document.getElementById('sko-sub');
+  const link = (n, label, target, warn) => n
+    ? `<button type="button" class="sko-stat-link${warn ? ' warn' : ''}" onclick="jumpToSkoSection('${target}')">${label}</button>`
+    : `<span>${label}</span>`;
+  if (skoMode) {
+    sub.innerHTML = [
+      `<span>${plural(s.trips, 'SKO trip')}</span>`,
+      `<span>${s.confirmed} confirmed</span>`,
+      `<span>${s.planned} planned</span>`,
+      link(s.missing, plural(s.missing, 'account') + ' missing a trip', 'sko-board-anchor', true),
+      link(s.conflicts, plural(s.conflicts, 'people conflict'), 'sko-conflicts-anchor', true)
+    ].join('');
+  } else if (!s.accounts && !s.trips) {
+    sub.innerHTML = `<span>No ${year} SKO dates or SKO trips yet. Add SKO dates on each account page.</span>`;
+  } else {
+    sub.innerHTML = [
+      `<span>${plural(s.accounts, 'account')} with ${year} SKO dates</span>`,
+      `<span>${plural(s.trips, 'SKO trip')} logged</span>`,
+      s.missing ? `<span>${s.missing} missing a trip</span>` : '',
+      s.conflicts ? `<span>${plural(s.conflicts, 'people conflict')}</span>` : ''
+    ].join('');
+  }
+}
+
+function skoTripLine(t) {
+  const label = t.title || tripPlaceLabel(t) || 'Untitled trip';
+  return `<b>${escHtml(label)}</b> ${escHtml(formatTripDates(t))}`;
+}
+
+function renderSkoPanel() {
+  const el = document.getElementById('sko-panel');
+  if (!el) return;
+  if (!skoMode) { el.innerHTML = ''; return; }
+  const year = skoSeasonYear();
+  const rows = skoBoardRows(year, true);
+  const conflicts = skoConflicts(year);
+
+  const boardBody = rows.length ? rows.map(r => {
+    const inv = r.sko?.involvement || [];
+    const acctCell = r.internal
+      ? '<span style="font-weight:600">Internal</span>'
+      : `<span class="sko-acct-link" onclick="openAccountFromTravel('${r.key}')">${escHtml(r.name)}</span>`;
+    const datesCell = skoHasContent(r.sko)
+      ? `<span class="sko-trip-dates">${escHtml(formatSkoDates(r.sko))}</span>`
+      : (r.internal ? '–' : '<span class="sko-unset">Not set on account</span>');
+    const travelCell = r.trips.length
+      ? r.trips.map(t => {
+          const who = tripAttendeesFor(t.id).map(a => personName(a.person_id)).join(', ');
+          return `<div class="sko-trip-row" onclick="openTripForm('${t.id}')">
+            <span class="trip-badge ${tripStatusToClass(t.status)}">${escHtml(t.status || 'Planned')}</span>
+            <span class="sko-trip-dates">${escHtml(formatTripDates(t))}</span>
+            <span class="sko-who">${escHtml(who) || 'No attendees yet'}</span>
+          </div>`;
+        }).join('')
+      : `<span class="sko-missing">No trip logged</span><button class="btn-secondary sko-mini-btn" onclick="createTripFromSko('${r.key}')">+ Create trip</button>`;
+    return `<tr data-sko-row="${escHtml(r.key)}">
+      <td>${acctCell}</td>
+      <td>${datesCell}</td>
+      <td>${escHtml(r.sko?.location || '') || '–'}</td>
+      <td>${inv.length ? inv.map(v => `<span class="sko-inv-chip">${escHtml(v)}</span>`).join('') : '–'}</td>
+      <td>${travelCell}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="5"><div class="empty-state" style="padding:24px 20px"><p>No ${year} SKOs yet. Add SKO dates on the account page, or log a trip with purpose SKO.</p></div></td></tr>`;
+
+  const kindChip = { conflict: 'Double-booked', duplicate: 'Possible duplicate', overlap: 'Back-to-back' };
+  const conflictsBody = conflicts.length ? conflicts.map(c => {
+    const name = escHtml(personName(c.pid));
+    let headline, detail;
+    if (c.kind === 'overlap') {
+      headline = `${name} has back-to-back trips`;
+      detail = `${skoTripLine(c.a.trip)}, then ${skoTripLine(c.b.trip)} ${c.gap === 1 ? 'the next day' : c.gap + ' days later'}`;
+    } else if (c.kind === 'duplicate') {
+      headline = `${name} has two overlapping trips to the same place`;
+      detail = `${skoTripLine(c.a.trip)} and ${skoTripLine(c.b.trip)}. Probably one trip logged twice.`;
+    } else {
+      headline = `${name} is booked in two places at once`;
+      detail = `${skoTripLine(c.a.trip)} overlaps ${skoTripLine(c.b.trip)}`;
+    }
+    return `<div class="alert-row sev-${c.kind}">
+      <span class="alert-chip chip-${c.kind}">${kindChip[c.kind]}</span>
+      <div class="alert-body"><div class="alert-headline">${headline}</div><div class="alert-detail">${detail}</div></div>
+    </div>`;
+  }).join('') : `<div class="empty-state" style="padding:24px 20px"><p>No overlaps. Nobody's on two trips within ${SKO_BUFFER_DAYS} days of each other in SKO season.</p></div>`;
+
+  const missing = rows.filter(r => !r.internal && skoHasContent(r.sko) && !r.trips.length).length;
+
+  el.innerHTML = `
+    <div class="section-header" id="sko-board-anchor">
+      <div>
+        <div class="section-title">${year} SKO board</div>
+        <div class="section-sub">Every account with ${year} SKO dates or an SKO trip, and whether travel is locked in</div>
+      </div>
+      <div class="section-count">${plural(rows.length, 'account')}${missing ? ' · ' + missing + ' missing a trip' : ''}</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table sko-board-table">
+        <thead><tr><th>Account</th><th>SKO dates</th><th>Location</th><th>Our involvement</th><th>Travel</th></tr></thead>
+        <tbody id="sko-board-tbody">${boardBody}</tbody>
+      </table>
+    </div>
+    <div class="section-header" style="border-top:var(--border)" id="sko-conflicts-anchor">
+      <div>
+        <div class="section-title">People conflicts</div>
+        <div class="section-sub">Same person on overlapping trips, or ${SKO_BUFFER_DAYS} days or less between them, Jan–Mar ${year}. SKOs are checked against all travel</div>
+      </div>
+      <div class="section-count" id="sko-conflicts-count">${conflicts.length ? plural(conflicts.length, 'flag') : 'all clear'}</div>
+    </div>
+    <div id="sko-conflicts">${conflictsBody}</div>
+    <div style="border-top:var(--border)"></div>`;
 }
 
 // ── TRAVEL FILTERS ──
@@ -4864,6 +5421,9 @@ function getTravelWindow() {
     end: isoDate(b),
     label: `${a.getDate()} ${a.toLocaleDateString('en-US', { month: 'short' })} \u2013 ${b.getDate()} ${monthLabel(b)}`
   });
+
+  // SKO mode pins the window to SKO season and ignores the date filter
+  if (skoMode) return skoWindow(skoSeasonYear());
 
   switch (travelDateMode) {
     case 'month':        return range(new Date(y, m, 1), new Date(y, m + 1, 0));
@@ -5103,11 +5663,22 @@ function resetTravelDaysPeople() {
 function travelFiltersActive() {
   return getFilterMSValues('fms-tr-person-dd').length > 0
     || getFilterMSValues('fms-tr-account-dd').length > 0
-    || getFilterMSValues('fms-tr-purpose-dd').length > 0
-    || travelDateMode !== 'quarter';
+    // Purpose and date are pinned (and hidden) in SKO mode, so they don't count
+    || (!skoMode && getFilterMSValues('fms-tr-purpose-dd').length > 0)
+    || (!skoMode && travelDateMode !== 'quarter');
 }
 
 function clearTravelFilters() {
+  // In SKO mode only person and account are visible, so only those clear.
+  // The pre-SKO purpose and date choices come back untouched on exit.
+  if (skoMode) {
+    ['fms-tr-person-dd', 'fms-tr-account-dd'].forEach(id => {
+      document.querySelectorAll('#' + id + ' input[type=checkbox]').forEach(cb => { cb.checked = false; });
+    });
+    populateTravelFilters();
+    renderTravel();
+    return;
+  }
   travelDaysCohortTouched = false;
   ['fms-tr-person-dd', 'fms-tr-account-dd', 'fms-tr-purpose-dd'].forEach(id => {
     document.querySelectorAll('#' + id + ' input[type=checkbox]').forEach(cb => { cb.checked = false; });
@@ -5127,7 +5698,7 @@ function filterTripsBy(opts) {
   const useDate   = opts?.useDate   !== false;
   const people   = getFilterMSValues('fms-tr-person-dd');
   const accounts = getFilterMSValues('fms-tr-account-dd');
-  const purposes = getFilterMSValues('fms-tr-purpose-dd');
+  const purposes = skoMode ? ['SKO'] : getFilterMSValues('fms-tr-purpose-dd');
   const win = useDate ? getTravelWindow() : null;
 
   return allTrips.filter(t => {
@@ -5702,6 +6273,7 @@ function drawMapMarkers() {
 
 // ── TRAVEL DASHBOARD ──
 function renderTravelDashboard() {
+  renderSkoPanel();
   renderTravelStats();
   renderTravelDaysByPerson();
   renderTravelAlerts();
@@ -5722,7 +6294,9 @@ function renderTravelStats() {
     <div class="stat-card">
       <div class="stat-label">Trips</div>
       <div class="stat-value">${trips.length}</div>
-      <div class="stat-sub">${upcoming} upcoming in the next 60 days</div>
+      <div class="stat-sub">${skoMode
+        ? trips.filter(t => t.status === 'Confirmed').length + ' confirmed \u00b7 ' + trips.filter(t => (t.status || 'Planned') === 'Planned').length + ' planned'
+        : upcoming + ' upcoming in the next 60 days'}</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Travel days</div>
